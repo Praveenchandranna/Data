@@ -23,7 +23,7 @@ runs:
   
   
   steps:
-    
+    - bash: echo $(global_variable)
     - name: Install sfdx
       shell: bash
       run: |
@@ -37,8 +37,8 @@ runs:
       shell: bash
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
-        
-    - bash: echo $(global_variable)
+
+    
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
       run: |
