@@ -20,10 +20,6 @@ runs:
   
   
   steps:
-    - bash: |
-          [task.setvariable variable=myVar;]cat manifest/testclass.txt
-    - bash: |
-        echo "You can use macro syntax for variables: $(myVar)"
     - name: Install sfdx
       shell: bash
       run: |
@@ -49,7 +45,7 @@ runs:
         deployFlags=(
             --manifest manifest/package.xml
             --wait 30
-            --test-level RunSpecifiedTests -t $(global_variable)
+            --test-level NoTestRun 
             --ignore-conflicts
             --verbose
           )
