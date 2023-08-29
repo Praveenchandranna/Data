@@ -46,7 +46,7 @@ runs:
         deployFlags=(
             --manifest manifest/package.xml
             --wait 30
-            --test-level RunSpecifiedTests -t $(myVar)
+            --test-level RunSpecifiedTests -t $(global_variable)
             --ignore-conflicts
             --verbose
           )
