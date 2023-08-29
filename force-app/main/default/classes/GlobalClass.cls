@@ -6,6 +6,5 @@ public with sharing class GlobalClass {
     public void getAllCases(){
         System.debug('In VFS Global Class');
         System.debug('In VFS Global Class');
-        System.debug('In VFS Global Class');
     }
 }
