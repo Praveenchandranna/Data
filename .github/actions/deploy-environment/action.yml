@@ -13,6 +13,9 @@ inputs:
     description: "The auth url tied to your deployment environment"
     required: true
 
+variables:
+  global_variable: cat manifest/testclass.txt
+  
 
 runs:
   using: "composite"
@@ -34,12 +37,8 @@ runs:
       shell: bash
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
-    - name: Test class name Display
-      shell: bash
-    - bash: |
-        echo "##vso[task.setvariable variable=myVar;] cat manifest/testclass.txt"
-      run: echo $(myVar) 
-    
+        
+    - bash: echo $(global_variable)
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
       run: |
