@@ -37,7 +37,9 @@ runs:
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
 
-    
+    - name: Test class names
+      bash: |
+        echo $(global_variable)
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
       run: |
