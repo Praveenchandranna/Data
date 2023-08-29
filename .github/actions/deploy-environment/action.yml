@@ -12,9 +12,6 @@ inputs:
   sfdx_auth_url:
     description: "The auth url tied to your deployment environment"
     required: true
-
-variables:
-  global_variable: cat manifest/testclass.txt
   
 
 runs:
@@ -23,6 +20,11 @@ runs:
   
   
   steps:
+    - name: Testing
+      - bash: |
+        echo "##vso[task.setvariable variable=myVar;]foo"
+      - bash: |
+        echo "You can use macro syntax for variables: $(myVar)"
     - name: Install sfdx
       shell: bash
       run: |
