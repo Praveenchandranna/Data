@@ -35,8 +35,7 @@ runs:
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
     - name: Test classes
-      variables:
-        testdata: cat manifest/testclass.txt
+      testdata=cat manifest/testclass.txt
       shell: bash
       run: echo $(testdata) 
     
