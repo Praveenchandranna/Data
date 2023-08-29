@@ -21,9 +21,9 @@ runs:
   
   steps:
     - name: Testing
-      - bash: |
+    - bash: |
         echo "##vso[task.setvariable variable=myVar;]foo"
-      - bash: |
+    - bash: |
         echo "You can use macro syntax for variables: $(myVar)"
     - name: Install sfdx
       shell: bash
