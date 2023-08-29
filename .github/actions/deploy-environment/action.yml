@@ -13,12 +13,14 @@ inputs:
     description: "The auth url tied to your deployment environment"
     required: true
 
+
 runs:
   using: "composite"
-  variables:
-       testdata: cat manifest/testclass.txt
+
+  
   
   steps:
+    
     - name: Install sfdx
       shell: bash
       run: |
@@ -33,9 +35,11 @@ runs:
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
     - name: Test classes
+      variables:
+        testdata: cat manifest/testclass.txt
       shell: bash
       run: echo $(testdata) 
-      
+    
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
       run: |
