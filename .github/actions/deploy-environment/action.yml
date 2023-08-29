@@ -15,8 +15,7 @@ inputs:
 
 runs:
   using: "composite"
-  variables:
-    testdata: cat manifest/testclass.txt
+  
   steps:
     - name: Install sfdx
       shell: bash
@@ -30,7 +29,11 @@ runs:
     - name: Generate package.xml
       shell: bash
       run: |
-        sfdx project generate manifest --source-dir force-app --output-dir manifest       
+        sfdx project generate manifest --source-dir force-app --output-dir manifest
+    - name: Testclass name
+      variables:
+      testdata: cat manifest/testclass.txt 
+    -bash: echo $(testdata)     
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
       run: |
