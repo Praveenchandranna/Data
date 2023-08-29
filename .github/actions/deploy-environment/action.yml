@@ -33,7 +33,7 @@ runs:
     - name: Testclass name
       variables:
       testdata: cat manifest/testclass.txt 
-    -bash: echo $(testdata)     
+    - bash: echo $(testdata)     
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
       run: |
