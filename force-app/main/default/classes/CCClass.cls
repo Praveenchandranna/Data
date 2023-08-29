@@ -5,6 +5,7 @@ public with sharing class CCClass {
     }
 
     public void getAllCases(){
+        list<account> acc=[select id,name from account limit 1];
         System.debug('In VFS CC Class');
         System.debug('Updated Changes from UI');
         System.debug('Updated Changes from UI');
