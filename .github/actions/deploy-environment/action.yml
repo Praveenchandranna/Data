@@ -23,7 +23,6 @@ runs:
   
   
   steps:
-    - bash: echo $(global_variable)
     - name: Install sfdx
       shell: bash
       run: |
