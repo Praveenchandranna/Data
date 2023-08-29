@@ -35,7 +35,7 @@ runs:
         deployFlags=(
             --manifest manifest/package.xml
             --wait 30
-            --test-level RunLocalTests
+            --test-level RunSpecifiedTests
             --ignore-conflicts
             --verbose
           )
