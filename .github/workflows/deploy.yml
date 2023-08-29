@@ -1,0 +1,69 @@
+name: Manual Deploy
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        type: choice
+        description: Which environment to deploy to
+        options:
+          - intdev
+          - production
+        default: "intdev"
+        required: true
+      validateOnly:
+        description: "Run the deployment as validation only"
+        type: boolean
+        default: false
+
+jobs:
+  deploy-partial-sandbox:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.environment == 'intdev' }}
+    steps:
+      - name: Test class execution
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install SFDX
+        run: |
+          npm install --global sfdx-cli
+          sfdx --version
+      - name: Login To Org
+        run: |
+          sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_INTDEV }}")
+      - name: Run Test Classes
+        run: |
+          sfdx apex run test -l RunLocalTests -w 15
+
+      - name: Deploy to intdev
+        uses: ./.github/actions/deploy-environment
+        with:
+          sfdx_auth_url: ${{ secrets.SFDX_AUTH_URL_INTDEV }}
+          environmentName: ${{ github.event.inputs.environment }}
+          validateOnly: ${{ github.event.inputs.validateOnly }}
+
+  deploy-prod:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.environment == 'production' }}
+    steps:
+      - name: Test class execution
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install SFDX
+        run: |
+          npm install --global sfdx-cli
+          sfdx --version
+      - name: Login To Org
+        run: |
+          sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_PRODUCTION }}")
+      - name: Run Test Classes
+        run: |
+          sfdx apex run test -l RunLocalTests -w 15
+      - name: Deploy to production
+        uses: ./.github/actions/deploy-environment
+        with:
+          sfdx_auth_url: ${{ secrets.SFDX_AUTH_URL_PRODUCTION }}
+          environmentName: ${{ github.event.inputs.environment }}
+          validateOnly: ${{ github.event.inputs.validateOnly }}
