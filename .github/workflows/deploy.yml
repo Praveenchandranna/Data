@@ -7,9 +7,9 @@ on:
         type: choice
         description: Which environment to deploy to
         options:
-          - intdev
+          - Intdev
           - production
-        default: "intdev"
+        default: "Intdev"
         required: true
       validateOnly:
         description: "Run the deployment as validation only"
@@ -19,7 +19,7 @@ on:
 jobs:
   deploy-partial-sandbox:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'intdev' }}
+    if: ${{ github.event.inputs.environment == 'Intdev' }}
     steps:
       - name: Test class execution
         uses: actions/checkout@v3
