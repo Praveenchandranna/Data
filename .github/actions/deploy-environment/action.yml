@@ -34,10 +34,10 @@ runs:
       shell: bash
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
-    - name: Test classes
-      shell: bash
-        echo "##vso[task.setvariable variable=myVar;] cat manifest/testclass.txt"     
-      run: echo "$(myVar)"
+    - name: Test class name Display
+      bash: |
+        echo "##vso[task.setvariable variable=myVar;] cat manifest/testclass.txt"
+      run: echo $(myVar) 
     
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
@@ -47,7 +47,7 @@ runs:
         deployFlags=(
             --manifest manifest/package.xml
             --wait 30
-            --test-level RunSpecifiedTests -t $(testdata)
+            --test-level RunSpecifiedTests -t $(myVar)
             --ignore-conflicts
             --verbose
           )
