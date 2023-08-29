@@ -20,9 +20,8 @@ runs:
   
   
   steps:
-    - name: Testing
     - bash: |
-        echo "##vso[task.setvariable variable=myVar;]foo"
+          [task.setvariable variable=myVar;]cat manifest/testclass.txt
     - bash: |
         echo "You can use macro syntax for variables: $(myVar)"
     - name: Install sfdx
