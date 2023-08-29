@@ -35,9 +35,9 @@ runs:
       run: |
         sfdx project generate manifest --source-dir force-app --output-dir manifest
     - name: Test classes
-      testdata=cat manifest/testclass.txt
       shell: bash
-      run: echo $(testdata) 
+        echo "##vso[task.setvariable variable=myVar;] cat manifest/testclass.txt"     
+      run: echo "$(myVar)"
     
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
