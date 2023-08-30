@@ -16,6 +16,7 @@ public with sharing class CCClass {
         System.debug('class name');
         System.debug('class name1');
         System.debug('class name');
+        System.debug('class name');
 
     }
 }
