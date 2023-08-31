@@ -5,5 +5,6 @@ public with sharing class KAMClass {
 
     public void getAllCases(){
         System.debug('In VFS KAM Class');
+        System.debug('In VFS KAM Class');
     }
 }
