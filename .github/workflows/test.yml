@@ -1,7 +1,11 @@
 name: Run Test Classes
 
 on: 
+  pull_request:
+    types: [opened, synchronize]
   push:
+    push:
+      branches: [ main ]
     paths:
       - force-app/**
 
