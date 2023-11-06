@@ -33,10 +33,6 @@ runs:
       run: |
         sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ inputs.sfdx_auth_url }}")
 
-    - name: Extract branch name
-      shell: bash
-      run: echo "branch=${FEATURE_BRANCHNAME}" >> $GITHUB_OUTPUT
-      id: extract_branch
     - name: Generate package.xml
       shell: bash
       run: |
