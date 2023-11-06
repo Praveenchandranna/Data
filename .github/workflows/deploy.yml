@@ -73,7 +73,7 @@ jobs:
           sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
       - name: Extract branch name
         run: |
-         echo "${{FEATURE_BRANCHNAME}}"
+         echo " ${{ github.head_ref || github.ref_name }} "
       - name: Deploy to production
         uses: ./.github/actions/deploy-environment
         with:
