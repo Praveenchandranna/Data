@@ -3,6 +3,9 @@ name: Manual Deploy
 on:
   workflow_dispatch:
     inputs:
+      Feature_Branch:
+        type: String
+        Description: Please Enter Branch name
       environment:
         type: choice
         description: Which environment to deploy to
@@ -32,8 +35,9 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        run: |
+          echo ${{ github.workspace }}
+          echo $GITHUB_WORKSPACE
       - name: Install SFDX
         run: |
           npm install --global sfdx-cli
@@ -44,8 +48,13 @@ jobs:
 
       
       - name: Run Test Classes
-        run: |
-          sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+        if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests' }}
+          run: |
+            sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+        else:
+          run: |
+            sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+
       - name: Deploy to intdev
         uses: ./.github/actions/deploy-environment
         with:
@@ -59,8 +68,9 @@ jobs:
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+        run: |
+          echo ${{ github.workspace }}
+          echo $GITHUB_WORKSPACE
       - name: Install SFDX
         run: |
           npm install --global sfdx-cli
