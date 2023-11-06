@@ -53,8 +53,8 @@ jobs:
 
       - name: Run Test Classes
         env:
-         SFDX_testclass_Gen: "${{ github.workspace }}"/manifest/"${{github.event.inputs.Feature_Branch}}"_testclass.txt
-         SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+          SFDX_testclass_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |
           cat SFDX_testclass_Gen
           echo "cat ${SFDX_testclass_Gen}"
