@@ -16,6 +16,7 @@ on:
         type: boolean
         default: false
       testlevel:
+        type: choice
         description: "Select Test class Run Type "
         options:
           - NoTestRun
