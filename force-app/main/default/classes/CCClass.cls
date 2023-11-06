@@ -15,6 +15,7 @@ public with sharing class CCClass {
         System.debug('Updated Changes from UI12');
         System.debug('class name');
         System.debug('class name');
+        System.debug('class name');
 
     }
 }
