@@ -36,7 +36,7 @@ runs:
     - name: Generate package.xml
       shell: bash
       run: |
-         package ==${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+         package =${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
        
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
