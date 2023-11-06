@@ -45,7 +45,7 @@ jobs:
       
       - name: Run Test Classes
         run: |
-        sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+          sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
       - name: Deploy to intdev
         uses: ./.github/actions/deploy-environment
         with:
