@@ -44,7 +44,7 @@ runs:
     
 
         deployFlags=(
-            --${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+            --manifest ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
             --wait 30
             --test-level  ${{github.event.inputs.testlevel}}
             --ignore-conflicts
