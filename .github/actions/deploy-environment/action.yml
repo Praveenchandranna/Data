@@ -34,12 +34,16 @@ runs:
         sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ inputs.sfdx_auth_url }}")
 
     - name: Generate package.xml
-      env:
-        SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+      shell: bash
+      run: |
+        sfdx project generate manifest --source-dir force-app --output-dir manifest
        
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
+      env:
+        SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
       run: |
+      
     
 
         deployFlags=(
