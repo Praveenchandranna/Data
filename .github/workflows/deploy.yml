@@ -11,10 +11,6 @@ on:
           - production
         default: "Intdev"
         required: true
-      validateOnly:
-        description: "Run the deployment as validation only"
-        type: boolean
-        default: false
       testlevel:
         type: choice
         description: "Select Test class Run Type "
@@ -23,7 +19,10 @@ on:
           - RunLocalTests
           - RunSpecifiedTests
           - RunAllTestsInOrg
-
+      validateOnly:
+        description: "Run the deployment as validation only"
+        type: boolean
+        default: false
 
 
 jobs:
@@ -46,8 +45,7 @@ jobs:
       
       - name: Run Test Classes
         run: |
-          sfdx apex run test -l RunLocalTests -w 15
-
+        sfdx apex run test -l testlevel: ${{github.event.inputs.testlevel}} -w 15
       - name: Deploy to intdev
         uses: ./.github/actions/deploy-environment
         with:
