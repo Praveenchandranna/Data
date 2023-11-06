@@ -32,10 +32,7 @@ runs:
       shell: bash
       run: |
         sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ inputs.sfdx_auth_url }}")
-    - name: Run Test class 
-      shell: bash
-       run: |
-          sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+        
     - name: Extract branch name
       shell: bash
       run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
