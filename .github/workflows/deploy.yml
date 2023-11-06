@@ -22,10 +22,12 @@ on:
           - RunLocalTests
           - RunSpecifiedTests
           - RunAllTestsInOrg
+        default: "RunSpecifiedTests"
+        required: true
       validateOnly:
         description: "Run the deployment as validation only"
         type: boolean
-        default: false
+        default: true
 
 
 jobs:
