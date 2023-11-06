@@ -32,12 +32,11 @@ runs:
       shell: bash
       run: |
         sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ inputs.sfdx_auth_url }}")
-        
+
     - name: Extract branch name
       shell: bash
       run: echo "branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}" >> $GITHUB_OUTPUT
       id: extract_branch
-      echo: extract_branch
     - name: Generate package.xml
       shell: bash
       run: |
