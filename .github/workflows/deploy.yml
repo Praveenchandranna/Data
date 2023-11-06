@@ -96,7 +96,7 @@ jobs:
           echo " ${{ github.head_ref || github.ref_name }} "
       - name: Run Test Classes
         env:
-          SFDX_testclass_Gen: cat ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_testclass_Gen: cat "${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt"
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml   
         run: |
           echo "{$SFDX_testclass_Gen}"
