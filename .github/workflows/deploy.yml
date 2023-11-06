@@ -34,7 +34,6 @@ jobs:
     if: ${{ github.event.inputs.environment == 'Intdev' }}
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v3
         run: |
           echo ${{ github.workspace }}
           echo $GITHUB_WORKSPACE
@@ -46,7 +45,6 @@ jobs:
         run: |
           sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_INTDEV }}")
 
-      
       - name: Run Test Classes
         run: |
           if: [${{ github.event.inputs.testlevel == 'RunSpecifiedTests' }}]; then
@@ -54,6 +52,7 @@ jobs:
           else:
               sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
           fi
+
       - name: Deploy to intdev
         uses: ./.github/actions/deploy-environment
         with:
@@ -66,7 +65,6 @@ jobs:
     if: ${{ github.event.inputs.environment == 'production' }}
     steps:
       - name: Checkout Source
-        uses: actions/checkout@v3
         run: |
           echo ${{ github.workspace }}
           echo $GITHUB_WORKSPACE
