@@ -48,13 +48,12 @@ jobs:
 
       
       - name: Run Test Classes
-        if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests' }}
-          run: |
-            sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
-        else:
-          run: |
-            sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
-
+        run: |
+          if: [${{ github.event.inputs.testlevel == 'RunSpecifiedTests' }}]; then
+              sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+          else:
+              sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+          fi
       - name: Deploy to intdev
         uses: ./.github/actions/deploy-environment
         with:
