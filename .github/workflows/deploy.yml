@@ -47,7 +47,7 @@ jobs:
 
       - name: Run Test Classes
         run: |
-          if: [${{ github.event.inputs.testlevel == 'RunSpecifiedTests' }}]; then
+          if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests' }}
               sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
           else:
               sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
