@@ -15,13 +15,22 @@ on:
         description: "Run the deployment as validation only"
         type: boolean
         default: false
+      testlevel:
+        description: "Select Test class Run Type "
+        options:
+          - NoTestRun
+          - RunLocalTests
+          - RunSpecifiedTests
+          - RunAllTestsInOrg
+
+
 
 jobs:
   deploy-partial-sandbox:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Intdev' }}
     steps:
-      - name: Test class execution
+      - name: Checkout Source
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -32,6 +41,8 @@ jobs:
       - name: Login To Org
         run: |
           sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_INTDEV }}")
+
+      
       - name: Run Test Classes
         run: |
           sfdx apex run test -l RunLocalTests -w 15
@@ -47,7 +58,7 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'production' }}
     steps:
-      - name: Test class execution
+      - name: Checkout Source
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
@@ -59,8 +70,14 @@ jobs:
         run: |
           sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_PRODUCTION }}")
       - name: Run Test Classes
+        uses: ./.github/actions/deploy-environment
+        with:
+          sfdx_auth_url: ${{ secrets.SFDX_AUTH_URL_PRODUCTION }}
+          environmentName: ${{ github.event.inputs.environment }}
+          validateOnly: ${{ github.event.inputs.validateOnly }}
+          testlevel: ${{github.event.inputs.testlevel}}
         run: |
-          sfdx apex run test -l RunLocalTests -w 15
+          sfdx apex run test -l testlevel: ${{github.event.inputs.testlevel}} -w 15
       - name: Deploy to production
         uses: ./.github/actions/deploy-environment
         with:
