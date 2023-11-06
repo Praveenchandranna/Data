@@ -45,7 +45,7 @@ jobs:
       
       - name: Run Test Classes
         run: |
-        sfdx apex run test -l testlevel: ${{github.event.inputs.testlevel}} -w 15
+        sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
       - name: Deploy to intdev
         uses: ./.github/actions/deploy-environment
         with:
@@ -70,7 +70,7 @@ jobs:
           sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_PRODUCTION }}")
       - name: Run Test Classes
         run: |
-          sfdx apex run test -l testlevel: ${{github.event.inputs.testlevel}} -w 15
+          sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
       - name: Deploy to production
         uses: ./.github/actions/deploy-environment
         with:
