@@ -34,9 +34,8 @@ runs:
         sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ inputs.sfdx_auth_url }}")
 
     - name: Generate package.xml
-      shell: bash
-      run: |
-         ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+      env:
+        SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
        
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
@@ -44,7 +43,7 @@ runs:
     
 
         deployFlags=(
-            --manifest ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+            --manifest "${SFDX_Package_Gen}"
             --wait 30
             --test-level  ${{github.event.inputs.testlevel}}
             --ignore-conflicts
