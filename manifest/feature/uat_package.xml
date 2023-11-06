@@ -8,12 +8,6 @@
 		<members>CCClassTest</members>
 		<members>ClassforVFSCC</members>
 		<members>ClassforVFSCC_test</members>
-		<members>ClassforVFSGlobal</members>
-		<members>ClassforVFSGlobal_test</members>
-		<members>ClassforVFSKAM</members>
-		<members>ClassforVFSKAM_Test</members>
-		<members>KAMClass</members>
-		<members>KAMClass_Test</members>
 		<name>ApexClass</name>
 	</types>
 
