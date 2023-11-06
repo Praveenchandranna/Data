@@ -36,7 +36,7 @@ runs:
     - name: Generate package.xml
       shell: bash
       run: |
-         package =${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+         ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
        
     - name: Deploy to ${{ inputs.environmentName }}
       shell: bash
@@ -44,7 +44,7 @@ runs:
     
 
         deployFlags=(
-            --manifest ${package}
+            --manifest ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
             --wait 30
             --test-level  ${{github.event.inputs.testlevel}}
             --ignore-conflicts
