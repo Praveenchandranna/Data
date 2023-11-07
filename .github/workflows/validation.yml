@@ -94,7 +94,7 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |        
             echo ${SFDX_testclass_Gen}    
-            specific= cat  ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt       
+            specific= $(cat  ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt)       
             
             echo "artifactname=$specific" >> $GITHUB_ENV
       - name: validation to ${{ github.event.inputs.environment }}
