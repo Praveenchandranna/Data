@@ -90,7 +90,7 @@ jobs:
         run: echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
       - name: Login To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=${{SALESFORCE_JWT_SECRET_KEY}} --username=${{ secrets.SFDX_AUTH_URL_PRODUCTION }} --setdefaultdevhubusername
+          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=${{secrets.SALESFORCE_JWT_SECRET_KEY}} --username=${{ secrets.SFDX_AUTH_URL_PRODUCTION }} --setdefaultdevhubusername
           
       - name: Extract branch name
         run: |
