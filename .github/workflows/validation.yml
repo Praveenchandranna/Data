@@ -95,12 +95,13 @@ jobs:
         run: |        
             echo ${SFDX_testclass_Gen}    
             specific= cat  ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt       
-            echo "$specific"
+            
+            echo "artifactname=$specific" >> $GITHUB_ENV
       - name: validation to ${{ github.event.inputs.environment }}
         run: |
             if ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}};then
-                echo ${env.specific}
-                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${env.specific}
+                echo ${env.artifactname}
+                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${env.artifactname}
             elif ${{ github.event.inputs.testlevel == 'NoTestRun'}};then
                 sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}   
             else
