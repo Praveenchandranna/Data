@@ -68,7 +68,7 @@ jobs:
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500
           fi
 
-Validation_To_prodction:
+  Validation_To_prodction:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'Production' }}
     steps:
