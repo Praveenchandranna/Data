@@ -85,6 +85,9 @@ jobs:
         run: |
           npm install --global sfdx-cli
           sfdx --version
+      - name: Populate auth file with SFDX_URL secret of the integration and staging orgs
+        shell: bash
+        run: echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
       - name: Login To ${{ github.event.inputs.environment }}
         run: |
           sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_URL_PRODUCTION }} --setdefaultdevhubusername
