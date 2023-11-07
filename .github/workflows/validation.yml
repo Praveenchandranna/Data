@@ -92,11 +92,10 @@ jobs:
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-        run: |        
-            echo ${SFDX_testclass_Gen}    
+        run: |          
             specific= cat  ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt       
             echo "${specific}"
-            echo "artifactname=$specific" >> $GITHUB_ENV
+           
       - name: validation to ${{ github.event.inputs.environment }}
         run: |
             if ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}};then
