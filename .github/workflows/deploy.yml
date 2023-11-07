@@ -99,7 +99,7 @@ jobs:
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          value: readfile file: "{SFDX_testclass_Gen}"
+          value= readfile file: "{SFDX_testclass_Gen}"
         run: |
 
           
