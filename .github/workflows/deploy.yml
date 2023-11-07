@@ -100,7 +100,6 @@ jobs:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |
-          echo ${SFDX_testclass_Gen}
           value = $(cat SFDX_testclass_Gen)
           echo "ApexSpecific = $value" >> $GITHUB_ENV
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
