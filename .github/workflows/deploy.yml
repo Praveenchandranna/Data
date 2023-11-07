@@ -97,7 +97,7 @@ jobs:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |
-          echo $SFDX_testclass_Gen
+          echo ${SFDX_testclass_Gen}
           value = $(cat SFDX_testclass_Gen)
           echo "ApexSpecific = $value" >> $GITHUB_ENV
           sfdx force:source:deploy --checkonly -p "${{SFDX_Package_Gen}}" --testlevel ${{github.event.inputs.testlevel}} --runtests ${{env.ApexSpecific}} -u ${{ secrets.SFDX_AUTH_URL_PRODUCTION }}
