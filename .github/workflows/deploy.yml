@@ -48,21 +48,24 @@ jobs:
         run: |
           npm install --global sfdx-cli
           sfdx --version
-      - name: Login To Org
+      - name: Authorize To ${{ github.event.inputs.environment }}
+        shell: bash
         run: |
-          sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_INTDEV }}")
-
+          echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
+          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_intdev }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_intdev_username }} --setdefaultdevhubusername
+          
       - name: Run Test Classes
         env:
-          SFDX_testclass_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |
-          cat SFDX_testclass_Gen
-          echo "cat ${SFDX_testclass_Gen}"
+          value = $(cat SFDX_testclass_Gen)
+          echo "ApexSpecific = $value" >> $GITHUB_ENV
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-              sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_URL_INTDEV }} -l ${{github.event.inputs.testlevel}} <cat ${SFDX_testclass_Gen} --wait 500
+                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_intdev_username }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.ApexSpecific}}
+
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
-              sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_URL_INTDEV }} -l ${{github.event.inputs.testlevel}} --wait 500    
+              sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_intdev_username }} -l ${{github.event.inputs.testlevel}} --wait 500    
           else
               sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
           fi
