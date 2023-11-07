@@ -94,7 +94,7 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |        
             echo ${SFDX_testclass_Gen}    
-            specific= $(cat ${SFDX_testclass_Gen})       
+            specific= cat  ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt       
             echo "$specific"
       - name: validation to ${{ github.event.inputs.environment }}
         run: |
@@ -102,7 +102,7 @@ jobs:
                 echo ${{env.specific}}
                 sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.specific}}
             elif ${{ github.event.inputs.testlevel == 'NoTestRun'}};then
-                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
+                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}   
             else
-                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500
+                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
             fi
