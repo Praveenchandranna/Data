@@ -102,10 +102,5 @@ jobs:
         run: |
             echo ${{env.artifactname}}
             sfdx force:source:deploy --checkonly -p ${SFDX_Package_Gen} --testlevel ${{github.event.inputs.testlevel}} --runtests ${{env.artifactname}} -u ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }}
-        elif: ${{ github.event.inputs.testlevel == 'NoTestRun'}}
-        run: |
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}   
-        else: 
-        run: |
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
+       
         
