@@ -94,12 +94,12 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |            
             specific= $(cat ${SFDX_testclass_Gen})       
-            echo "APEX_specific=$specific" >> $GITHUB_ENV
+            echo "$specific"
       - name: validation to ${{ github.event.inputs.environment }}
         run: |
             if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}
                 echo ${{env.APEX_specific}}
-                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.APEX_specific}}
+                sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.specific}}
             elif: ${{ github.event.inputs.testlevel == 'NoTestRun'}}
                 sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
             else:
