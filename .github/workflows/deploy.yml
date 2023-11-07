@@ -117,5 +117,3 @@ jobs:
           sfdx_auth_url: ${{ secrets.SFDX_AUTH_URL_PRODUCTION }}
           environmentName: ${{ github.event.inputs.environment }}
           validateOnly: ${{ github.event.inputs.validateOnly }}
-
-          https://www.youtube.com/watch?v=GTwphi3UFMA
