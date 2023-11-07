@@ -1,4 +1,4 @@
-name: Manual Deploy
+name: Validation
 
 on:
   workflow_dispatch:
@@ -115,11 +115,3 @@ jobs:
           else
               sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500
           fi
-      - name: Deploy to ${{ github.event.inputs.environment }}
-        shell: bash
-        env:
-          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
-          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          run: |
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.ApexSpecific}}
-
