@@ -100,7 +100,7 @@ jobs:
           echo ${SFDX_testclass_Gen}
           value = $(cat SFDX_testclass_Gen)
           echo "ApexSpecific = $value" >> $GITHUB_ENV
-          sfdx force:source:deploy --checkonly -p "${{SFDX_Package_Gen}}" --testlevel ${{github.event.inputs.testlevel}} --runtests ${{env.ApexSpecific}} -u ${{ secrets.SFDX_AUTH_URL_PRODUCTION }}
+          sfdx force:source:deploy --checkonly -p "${SFDX_Package_Gen}" --testlevel ${{github.event.inputs.testlevel}} --runtests ${{env.ApexSpecific}} -u ${{ secrets.SFDX_AUTH_URL_PRODUCTION }}
       - name: Deploy to production
         uses: ./.github/actions/deploy-environment
         with:
