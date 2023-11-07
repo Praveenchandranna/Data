@@ -101,7 +101,7 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           
         run: |
-          sh 'cat ${SFDX_testclass_Gen}' 
+          sh 'cat "${SFDX_testclass_Gen}"' 
           String value = readfile file: "{SFDX_testclass_Gen}"
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_URL_INTDEV }} -l ${{github.event.inputs.testlevel}} ${value} --wait 500
 
