@@ -91,10 +91,13 @@ jobs:
         run: |
           npm install --global sfdx-cli
           sfdx --version
-      - name: Authorize To ${{ github.event.inputs.environment }}
+      - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
         run: |
           echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
+  
+      - name: Authorize To ${{ github.event.inputs.environment }}
+        run: |
           sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --setdefaultdevhubusername
           
       - name: Run Test Classes
