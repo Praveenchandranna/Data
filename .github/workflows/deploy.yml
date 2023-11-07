@@ -25,11 +25,6 @@ on:
           - RunAllTestsInOrg
         default: "RunSpecifiedTests"
         required: true
-      validateOnly:
-        description: "Run the deployment as validation only"
-        type: boolean
-        default: true
-
 
 jobs:
   deploy-partial-sandbox:
