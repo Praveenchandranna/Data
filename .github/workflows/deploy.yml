@@ -111,9 +111,9 @@ jobs:
                 sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.ApexSpecific}}
 
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
-              sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} -l ${{github.event.inputs.testlevel}} --wait 500    
+              sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
           else
-              sfdx apex run test -l ${{github.event.inputs.testlevel}} -w 15
+              sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500
           fi
       - name: Deploy to production
         uses: ./.github/actions/deploy-environment
