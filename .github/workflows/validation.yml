@@ -95,7 +95,7 @@ jobs:
         run: |          
 
             specific= cat ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt       
-            echo "$specific" >> $GITHUB_ENV
+            echo " Test $specific"
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
         env:
