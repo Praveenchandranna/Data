@@ -89,6 +89,7 @@ jobs:
         run: |
           sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --setdefaultdevhubusername
       - name: Fetch Test class names
+        shell: bash
         env:
           SFDX_testclass_Gen: $(cat ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt)
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
@@ -102,8 +103,8 @@ jobs:
         run: |
           
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-            sfdx force:source:deploy -x ${SFDX_Package_Gen} --testlevel RunSpecifiedTests \
-            --runtests CCClassTest --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }}
+            sfdx force:source:deploy -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests CCClassTest 
+            
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
           else
