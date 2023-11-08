@@ -95,7 +95,7 @@ jobs:
         run: |          
 
             specific= cat ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt       
-            echo APEX_TESTS=$specific >> $GITHUB_ENV
+            echo $specific
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
         env:
@@ -104,7 +104,6 @@ jobs:
         run: |
           
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-            echo ${specific}
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${specific}
 
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
