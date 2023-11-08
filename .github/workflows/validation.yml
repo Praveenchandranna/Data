@@ -94,8 +94,8 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |          
 
-            specific= $(cat ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt)       
-            echo $specific
+            cat ${SFDX_testclass_Gen}
+            echo ${SFDX_testclass_Gen}
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
         env:
