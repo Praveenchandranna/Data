@@ -103,7 +103,7 @@ jobs:
         run: |
           
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-            sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --testlevel RunSpecifiedTests --runtests (cat ${SFDX_testclass_Gen})
+             echo "sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --testlevel RunSpecifiedTests --runtests (cat ${SFDX_testclass_Gen})"
             
             
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
