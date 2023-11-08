@@ -92,10 +92,9 @@ jobs:
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-        run: |          
-
-            cat ${SFDX_testclass_Gen}
-            echo ${SFDX_testclass_Gen}
+        run: |  
+            var = ($cat ${SFDX_testclass_Gen})        
+            echo Test >> cat ${SFDX_testclass_Gen}
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
         env:
