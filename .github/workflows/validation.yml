@@ -88,7 +88,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_INTDEV }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --setdefaultdevhubusername
+          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --setdefaultdevhubusername
       - name: Fetch Test class names
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
