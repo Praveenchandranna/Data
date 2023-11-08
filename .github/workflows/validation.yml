@@ -101,7 +101,7 @@ jobs:
         run: |
             if ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}};then
                 echo ${{env.APEX_TESTS}}
-                sf project deploy validate --source-dir ${SFDX_Package_Gen} --async --test-level ${{github.event.inputs.testlevel}} --target-org ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }}
+                sfdx force:source:deploy -p ${SFDX_Package_Gen} -l ${{github.event.inputs.testlevel}}   -r CCClassTest -w 33 --verbose --loglevel fatal
                 
             elif ${{ github.event.inputs.testlevel == 'NoTestRun'}};then
                 sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}   
