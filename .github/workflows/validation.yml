@@ -52,9 +52,9 @@ jobs:
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          cat SFDX_testclass_Gen
-        run: |
           
+        run: |
+          cat ${SFDX_testclass_Gen}
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
             sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --targetusername ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --testlevel RunSpecifiedTests --runtests CCClassTest
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
@@ -88,9 +88,9 @@ jobs:
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          cat ${SFDX_testclass_Gen}
-        run: |
           
+        run: |
+          cat ${SFDX_testclass_Gen}
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
             sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --testlevel RunSpecifiedTests --runtests CCClassTest
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
