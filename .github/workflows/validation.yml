@@ -72,8 +72,8 @@ jobs:
           fetch-depth: 0
       - name: Install SFDX
         run: |
-          npm install -g sfdx-cli
-          wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz && mkdir sfdx && tar xf sfdx-linux-amd64.tar.xz -C sfdx --strip-components 1 && ./sfdx/install
+          npm install --global sfdx-cli
+          sfdx --version
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
         run: |
