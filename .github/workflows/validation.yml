@@ -95,14 +95,13 @@ jobs:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |             
-            echo "test > ($cat ${SFDX_testclass_Gen}) >> $GITHUB_ENV
+            cat ${SFDX_testclass_Gen}
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
         run: |
           
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-            sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --target-org ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel RunSpecifiedTests --runtests {env.test}
-            
+            sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --target-org ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel RunSpecifiedTests --runtests CCClassTest           
             
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
