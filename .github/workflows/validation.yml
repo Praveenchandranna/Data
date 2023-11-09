@@ -35,6 +35,10 @@ jobs:
         uses: actions/checkout@v3 
         with:
           fetch-depth: 0
+      - name: Get Workspace
+        run: |
+            echo "${{ github.workspace }}"
+            echo $GITHUB_WORKSPACE
       - name: Install SFDX
         run: |
           npm install --global sfdx-cli
@@ -48,23 +52,18 @@ jobs:
         run: |
           sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_INTDEV }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --setdefaultdevhubusername
           
-      - name: Fetch Test class names
-        shell: bash
+      - name: Run Test Classes
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-        run: |             
-            cat ${SFDX_testclass_Gen}
-      - name: validation to ${{ github.event.inputs.environment }}
-        shell: bash
         run: |
-          
+          value = $(cat SFDX_testclass_Gen)
+          echo "ApexSpecific = $value" >> $GITHUB_ENV
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-            sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --target-org ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --testlevel RunSpecifiedTests --runtests CCClassTest
-            
-            
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} -r ${{env.ApexSpecific}}
+
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} -l ${{github.event.inputs.testlevel}} --wait 500    
           else
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_INTDEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500
           fi
@@ -98,12 +97,17 @@ jobs:
             cat ${SFDX_testclass_Gen}
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
+        env:
+          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |
           
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
-            sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --target-org ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel RunSpecifiedTests --runtests CCClassTest           
+             echo "sfdx force:source:deploy -x ${SFDX_Package_Gen} --checkonly --testlevel RunSpecifiedTests --runtests > (cat ${SFDX_testclass_Gen})"
+            
             
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
+          sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername *** --testlevel NoTestRun --wait 500  
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
           else
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500
