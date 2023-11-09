@@ -90,12 +90,10 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           
         run: |
-          
+        sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }}--testlevel RunSpecifiedTests --runtests CCClassTest 
           if [ "${{ github.event.inputs.testlevel}}" == "RunSpecifiedTests"]; then
             cat ${SFDX_testclass_Gen}
-            sfdx org login sfdx-url --set-default --sfdx-url-file <(echo "${{ secrets.SFDX_AUTH_URL_PRODUCTION }}")
-            sfdx apex run test -l ${{github.event.inputs.testlevel}} -r CCClassTest,CCClassVfs_test  -w 15
-            
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }}--testlevel RunSpecifiedTests --runtests CCClassTest 
           elif [ "${{ github.event.inputs.testlevel}}" == "NoTestRun"]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
           else
