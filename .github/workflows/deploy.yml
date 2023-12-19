@@ -5,7 +5,7 @@ on:
     inputs:
       Feature_Branch:
         type: String
-        Description: Please Enter Branch name
+        description: Please Enter Branch name
         required: true
       environment:
         type: choice
@@ -27,7 +27,7 @@ on:
         required: true
       specifiedclass:
         type: String
-        Description: Please Enter Test Class Names with Camma Seperated.
+        description: Please Enter Test Class Names with Camma Seperated.
 
 jobs:
   deploy-partial-sandbox:
