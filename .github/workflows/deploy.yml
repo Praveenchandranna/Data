@@ -94,7 +94,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile ${{ secrets.SALESFORCE_JWT_SECRET_KEY }} --username=${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --setdefaultdevhubusername
+          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_PRODUCTION }} --jwtkeyfile=${{ secrets.SALESFORCE_JWT_SECRET_KEY }} --username=${{ secrets.SFDX_AUTH_PRODUCTION_USERNAME }} --setdefaultdevhubusername
           
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
