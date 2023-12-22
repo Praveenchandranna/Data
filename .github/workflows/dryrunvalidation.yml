@@ -67,7 +67,7 @@ jobs:
           elif [ ${{ github.event.inputs.testlevel}} == RunAllTestsInOrg]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_DRYRUN_USERNAME }} 
           else
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_DRYRUN_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests {SFDX_testclass} 
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_DRYRUN_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass} 
           fi
   Validation_To_Intdev:
     runs-on: ubuntu-latest
