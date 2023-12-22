@@ -60,7 +60,7 @@ jobs:
         run: |
           
           if [ ${{ github.event.inputs.testlevel}} == "RunSpecifiedTests"]; then
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --testlevel ${{github.event.inputs.testlevel}}  --runtests ${{github.event.inputs.specifiedclass}} --targetusername  ${{ secrets.SFDX_AUTH_DRYRUN_USERNAME }}
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --testlevel ${{github.event.inputs.testlevel}}  --runtests test --targetusername  ${{ secrets.SFDX_AUTH_DRYRUN_USERNAME }}
           elif [ ${{ github.event.inputs.testlevel}} == NoTestRun]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_DRYRUN_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --wait 500    
           else
