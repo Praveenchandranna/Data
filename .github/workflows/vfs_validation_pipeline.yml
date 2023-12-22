@@ -29,7 +29,7 @@ on:
         description: Please Enter Test Class Names with Camma Seperated.
 
 jobs:
-  Validation_To_Lower_Dryrun:
+  Validation_To_VFS_QA:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'VFS QA' }}
     steps:
@@ -66,7 +66,7 @@ jobs:
           else
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests CCClassTest
           fi
-  Validation_To_Intdev:
+  Validation_To_VFS_UAT:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'VFS UAT' }}
     steps:

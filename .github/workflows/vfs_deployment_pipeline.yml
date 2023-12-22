@@ -30,9 +30,9 @@ on:
         description: Please Enter Test Class Names with Camma Seperated.
 
 jobs:
-  deploy-partial-sandbox:
+  Deployment_To_VFS_QA:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'Intdev' }}
+    if: ${{ github.event.inputs.environment == 'VFS QA' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -76,9 +76,9 @@ jobs:
           sfdx force:source:deploy  -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }}
 
 
-  deploy-prod:
+  Deployment_To_VFS_UAT:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'production' }}
+    if: ${{ github.event.inputs.environment == 'VFS UAT' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
