@@ -51,29 +51,27 @@ jobs:
           sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --setdefaultdevhubusername
 
       - name: validation to ${{ github.event.inputs.environment }}
-        if: ${{github.event.inputs.testlevel || inputs.testlevel}} == 'RunLocalTests'
         shell: bash
+        if: ${{github.event.inputs.testlevel || inputs.testlevel}} == 'RunLocalTests'
+        
         env:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         run: 
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --testlevel ${{github.event.inputs.testlevel}}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }}
         if: ${{ github.event.inputs.testlevel || inputs.testlevel}} == 'RunAllTestsInOrg'
-        shell: bash
         env:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         run:
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
         if: ${{ github.event.inputs.testlevel || inputs.testlevel}} == 'NoTestRun'
-        shell: bash
         env:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         run:
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
         if: ${{ github.event.inputs.testlevel || inputs.testlevel}} == 'RunSpecifiedTests'
-        shell: bash
         env:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
