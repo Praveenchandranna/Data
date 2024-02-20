@@ -1,9 +1,6 @@
 name: VFS Deployment Pipeline
 
 on:
-  push:
-    branches:
-      - main
   workflow_dispatch:
     inputs:
       Feature_Branch:
