@@ -1,6 +1,9 @@
 name: VFS Deployment Pipeline
 
 on:
+  push:
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       Feature_Branch:
@@ -65,7 +68,7 @@ jobs:
           elif [ ${{ github.event.inputs.testlevel}} ==  NoTestRun]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
           else
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests CCClassTest
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
           fi
       - name: Deploy to ${{ github.event.inputs.environment }}
         shell: bash
@@ -112,12 +115,11 @@ jobs:
           elif [ ${{ github.event.inputs.testlevel}} ==  NoTestRun]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} 
           else
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests CCClassTest
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
           fi
       - name: Deploy to ${{ github.event.inputs.environment }}
         shell: bash
         env:
-          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
         run: |
           sfdx force:source:deploy  -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }}

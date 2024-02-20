@@ -64,7 +64,7 @@ jobs:
           elif [ ${{ github.event.inputs.testlevel}} == NoTestRun]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
           else
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests CCClassTest
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
           fi
   Validation_To_VFS_UAT:
     runs-on: ubuntu-latest
@@ -102,5 +102,5 @@ jobs:
           elif [ ${{ github.event.inputs.testlevel}} == NoTestRun]; then
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} 
           else
-            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests CCClassTest
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
           fi
