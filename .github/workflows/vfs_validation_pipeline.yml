@@ -48,7 +48,7 @@ jobs:
         uses: forcedotcom/run-code-analyzer@v1
         with:
           run-command: run
-          run-arguments: --normalize-severity --target . --outfile results.html --verbose
+          run-arguments: --normalize-severity --target . --outfile results.json --verbose
           results-artifact-name: salesforce-code-analyzer-results
       - name: Test Local Action
         id: test-action
@@ -56,7 +56,6 @@ jobs:
         with:
           run-command: run
           run-arguments: --normalize-severity --target "./src,./__tests__" --outfile results.json --verbose
-          results-artifact-name: salesforce-code-analyzer-results
       - name: Print Output
         id: output
         run: echo "${{ steps.test-action.outputs.exit-code }}"
