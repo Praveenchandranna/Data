@@ -42,6 +42,7 @@ jobs:
           sfdx --version
       - name: Install Salesforce Code Analyzer Plugin
         run: sf plugins install @salesforce/sfdx-scanner@latest
+
       - name: Run Salesforce Code Analyzer
         id: run-code-analyzer
         uses: forcedotcom/run-code-analyzer@v1
@@ -54,7 +55,7 @@ jobs:
           steps.run-code-analyzer.outputs.exit-code > 0 ||
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
-          run: exit 1
+        run: exit 1
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
         run: |
