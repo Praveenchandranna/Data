@@ -49,7 +49,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --set-default-dev-hubusername
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --set-default-dev-hub
 
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
@@ -95,7 +95,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --set-default-dev-hubusername
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --set-default-dev-hub
 
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
