@@ -1,0 +1,54 @@
+name: 'Run Salesforce Code Analyzer'
+description: 'Scans your code for violations using Salesforce Code Analyzer, uploads results as an artifact, and creates a job summary.'
+author: 'Salesforce Code Analyzer Team'
+
+branding:
+  icon: 'play'
+  color: 'gray-dark'
+
+inputs:
+  run-command:
+    description: |-
+      Specifies the Salesforce Code Analyzer command to run.
+      Possible values are: "run", "run dfa". Default: "run"
+      
+      For more info on Code Analyzer, read our [documentation](https://forcedotcom.github.io/sfdx-scanner).
+    required: false
+    default: 'run'
+  run-arguments:
+    description: |-
+      Specifies arguments passed to the specified run-command value.
+      Default: "--normalize-severity"
+      
+      The arguments provided must include --normalize-severity.
+      
+      To control the output file included in the uploaded artifact, specify an output file name with the --outfile argument.
+      If an output file isn’t specified, results are written to GitHub workflow run logs and a SalesforceCodeAnalyzerResults.json file is included in the uploaded artifact.
+      
+      For a full list of acceptable arguments, read the appropriate Command Reference:
+      - [sf scanner run](https://forcedotcom.github.io/sfdx-scanner/en/v3.x/scanner-commands/run)
+      - [sf scanner run dfa](https://forcedotcom.github.io/sfdx-scanner/en/v3.x/scanner-commands/dfa)
+    required: false
+    default: '--normalize-severity'
+  results-artifact-name:
+    description: |-
+      Specifies the name of the zip archive job artifact where the results output file is uploaded.
+      Default: "code-analyzer-results"
+    required: false
+    default: 'code-analyzer-results'
+
+outputs:
+  exit-code:
+    description: The Salesforce Code Analyzer execution exit code.
+  num-violations:
+    description: The total number of violations found.
+  num-sev1-violations:
+    description: The number of normalized high-severity violations found.
+  num-sev2-violations:
+    description: The number of normalized medium-severity violations found.
+  num-sev3-violations:
+    description: The number of normalized low-severity violations found.
+
+runs:
+  using: node20
+  main: dist/index.js
