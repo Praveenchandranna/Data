@@ -37,8 +37,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Salesforce CLI
-        run: npm install -g @salesforce/cli@latest
-        sfdx --version
+        run: |
+          npm install -g @salesforce/cli@latest
+          sfdx --version
       - name: Install Salesforce Code Analyzer Plugin
         run: sf plugins install @salesforce/sfdx-scanner@latest
 
@@ -63,7 +64,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --setdefaultdevhubusername
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --set-default-dev-hubusername
 
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
@@ -100,7 +101,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sfdx force:auth:jwt:grant --clientid=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwtkeyfile=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --setdefaultdevhubusername
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --set-default-dev-hubusername
 
       - name: validation to ${{ github.event.inputs.environment }}
         shell: bash
