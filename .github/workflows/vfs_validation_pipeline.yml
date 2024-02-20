@@ -50,7 +50,17 @@ jobs:
           run-command: run
           run-arguments: --normalize-severity --target . --outfile results.html
           results-artifact-name: salesforce-code-analyzer-results
+      - name: Test Local Action
+        id: test-action
+        uses: ./
+        with:
+          run-command: run
+          run-arguments: --normalize-severity --target "./src,./__tests__" --outfile results.json --verbose
 
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.exit-code }}"
+        
       - name: Check the outputs to determine whether to fail
         if: |
           steps.run-code-analyzer.outputs.exit-code > 0 ||
