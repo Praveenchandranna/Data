@@ -33,14 +33,29 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'VFS QA' }}
     steps:
-      - name: Checkout Source
-        uses: actions/checkout@v3
+      - name: Check out files
+        uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: npm install -g @salesforce/cli@latest
+        sfdx --version
+      - name: Install Salesforce Code Analyzer Plugin
+        run: sf plugins install @salesforce/sfdx-scanner@latest
+
+      - name: Run Salesforce Code Analyzer
+        id: run-code-analyzer
+        uses: forcedotcom/run-code-analyzer@v1
         with:
-          fetch-depth: 0
-      - name: Install SFDX
-        run: |
-          npm install --global sfdx-cli
-          sfdx --version
+          run-command: run
+          run-arguments: --normalize-severity --target . --outfile results.html
+          results-artifact-name: salesforce-code-analyzer-results
+
+      - name: Check the outputs to determine whether to fail
+        if: |
+          steps.run-code-analyzer.outputs.exit-code > 0 ||
+          steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-violations > 10
+        run: exit 1
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
         run: |
