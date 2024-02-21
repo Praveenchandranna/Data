@@ -131,6 +131,34 @@ jobs:
         run: |
           sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --set-default-dev-hub
 
+      - name: Run Salesforce Code Analyzer
+      run: |
+        sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
+  
+      - name: Convert JSON to YAML
+        uses: json2yaml/json2yaml-action@v1
+        with:
+          src: analysis_results.json
+          dest: analysis_results.yaml
+
+      - name: Store Analysis Results
+        run: |
+          mkdir -p analysis_results
+          mv analysis_results.yaml analysis_results/analysis_results.yaml
+          echo "::set-output name=analysis_file_path::analysis_results/analysis_results.yaml"
+
+      - name: Commit Analysis Results
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update Salesforce code analysis results"
+          file_pattern: "analysis_results/analysis_results.yaml"
+          branch: ${{ github.ref }}
+
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
       - name: validation to ${{ github.event.inputs.environment }} with Respect to RunLocalTests
         shell: bash
         env:
