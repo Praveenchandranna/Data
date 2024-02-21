@@ -99,4 +99,58 @@ jobs:
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+_&&&&
+name: Salesforce Code Analysis
+
+on:
+  push:
+    branches:
+      - main  # Adjust branch name if needed
+
+jobs:
+  analyze_code:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Install Salesforce CLI
+        run: |
+          wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+          mkdir sfdx-cli
+          tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
+          sudo ./sfdx-cli/install
+
+      - name: Authenticate with Salesforce Org
+        run: |
+          sfdx auth:jwt:grant --clientid ${{ secrets.SALESFORCE_CLIENT_ID }} --username ${{ secrets.SALESFORCE_USERNAME }} --jwtkeyfile ./server.key --instanceurl ${{ secrets.SALESFORCE_INSTANCE_URL }} --setdefaultdevhubusername -a devhub
+
+      - name: Run Salesforce Code Analyzer
+        run: |
+          sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
+
+      - name: Convert JSON to YAML
+        run: |
+          apt-get update && apt-get install -y jq python3-pip
+          pip3 install yq
+          jq . analysis_results.json | yq eval -P - > analysis_results.yaml
+
+      - name: Store Analysis Results
+        run: |
+          mkdir -p analysis_results
+          mv analysis_results.yaml analysis_results/analysis_results.yaml
+          echo "::set-output name=analysis_file_path::analysis_results/analysis_results.yaml"
+
+      - name: Commit Analysis Results
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Update Salesforce code analysis results"
+          file_pattern: "analysis_results/analysis_results.yaml"
+          branch: ${{ github.ref }}
+
+      - name: Push Changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
