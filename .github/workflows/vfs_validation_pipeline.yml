@@ -135,8 +135,9 @@ jobs:
           echo "::set-output name=analysis_file_path::analysis_results/analysis_results.json"
 
       - name: Commit Analysis Results
-        uses: stefanzweifel/git-auto-commit-action@v4
+        uses: ad-m/github-push-action@master
         with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
           commit_message: "Update Salesforce code analysis results"
           file_pattern: "analysis_results/analysis_results.json"
           branch: ${{ github.ref }}
