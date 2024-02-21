@@ -81,6 +81,7 @@ jobs:
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
+        run: echo sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
       - name: validation to ${{ github.event.inputs.environment }} with RunAllTestsInOrg
         shell: bash
         env:
@@ -98,6 +99,7 @@ jobs:
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
         run: echo  sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
+
       - name: validation to ${{ github.event.inputs.environment }} with RunSpecifiedTests
         shell: bash
         env:
@@ -106,6 +108,7 @@ jobs:
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
         run: echo sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
+        
   Validation_To_VFS_UAT:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'VFS UAT' }}
