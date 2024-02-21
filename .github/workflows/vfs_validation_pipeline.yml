@@ -83,9 +83,9 @@ jobs:
         run: |
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername  ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
-        elseif: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
+        elif: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
-        elseif: ${{ github.event.inputs.testlevel == 'NoTestRun'}}
+        elif: ${{ github.event.inputs.testlevel == 'NoTestRun'}}
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
         else:
           sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
