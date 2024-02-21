@@ -133,24 +133,12 @@ jobs:
 
       - name: Run Salesforce Code Analyzer
         run: |
-          sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
+          sfdx force:source:lint --files force-app/main/default/* --format txt > analysis_results.txt
       - name: Store Analysis Results
         run: |
           mkdir -p analysis_results
-          mv analysis_results.json analysis_results/analysis_results.json
-          echo "::set-output name=analysis_file_path::analysis_results/analysis_results.json"
-
-      - name: Commit Analysis Results
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "Update Salesforce code analysis results"
-          file_pattern: "analysis_results/analysis_results.json"
-          branch: ${{ github.ref }}
-
-      - name: Push Changes
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          mv analysis_results.txt analysis_results/analysis_results.txt
+          echo "::set-output name=analysis_file_path::analysis_results/analysis_results.txt"
 
       - name: validation to ${{ github.event.inputs.environment }} with Respect to RunLocalTests
         shell: bash
