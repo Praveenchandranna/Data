@@ -133,11 +133,15 @@ jobs:
           mkdir -p analysis_results
           mv analysis_results.json analysis_results/analysis_results.json
           echo "::set-output name=analysis_file_path::analysis_results/analysis_results.json"
-
+      - name: Pull latest Changes
+        run: git fetch origin
+      - name: Rebase Changes
+        run: git rebase origin/${{ github.ref}}
       - name: Commit Analysis Results
         uses: ad-m/github-push-action@master
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          
           commit_message: "Update Salesforce code analysis results"
           file_pattern: "analysis_results/analysis_results.json"
           branch: ${{ github.ref }}
