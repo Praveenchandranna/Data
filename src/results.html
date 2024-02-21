@@ -288,3 +288,77 @@ jobs:
           sfdx force:source:deploy --checkonly -w 500 -x manifest/${{ github.event.inputs.Feature_Branch }}_package.xml --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{ github.event.inputs.testlevel }}${{ github.event.inputs.testlevel == 'RunSpecifiedTests' ? ' --runtests ' + github.event.inputs.specifiedclass : '' }}
             
 
+ggg jeeja gyi ghh
+
+            name: My Org Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      Feature_Branch:
+        type: String
+        description: Please Enter Branch To validate in Environment.
+        required: true
+      environment:
+        type: choice
+        description: Please Select The Validation Environment.
+        options:
+          - VFS QA
+          - VFS UAT
+        default: "VFS QA"
+        required: true
+      testlevel:
+        type: choice
+        description: Select Test class Run Type.
+        options:
+          - NoTestRun
+          - RunLocalTests
+          - RunSpecifiedTests
+          - RunAllTestsInOrg
+        default: "RunSpecifiedTests"
+        required: true
+      specifiedclass:
+        type: String
+        description: Please Enter Test Class Names with Comma Separated.
+
+jobs:
+  validate_and_deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Source
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install -g @salesforce/cli@latest
+          sfdx --version
+
+      - name: Generate JWT Key
+        shell: bash
+        run: echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
+
+      - name: Authorize Org
+        run: |
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA}} --jwt-key-file=server.key --username=${{secrets.SFDX_AUTH_VFS_QA_USERNAME}} --set-default-dev-hub
+
+      - name: Run Salesforce Code Analyzer
+        run: sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
+
+      - name: Store Analysis Results
+        run: |
+          mkdir -p analysis_results
+          mv analysis_results.json analysis_results/analysis_results.json
+          echo "::set-output name=analysis_file_path::analysis_results/analysis_results.json"
+
+      - name: Deploy to Org (VFS UAT)
+        if: ${{ github.event.inputs.environment == 'VFS UAT' }}
+        run: |
+          sfdx force:source:deploy --checkonly -w 500 -x manifest/${{ github.event.inputs.Feature_Branch }}_package.xml --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{ github.event.inputs.testlevel }}${{ github.event.inputs.testlevel == 'RunSpecifiedTests' ? ' --runtests ' + github.event.inputs.specifiedclass : '' }}
+
+      - name: Deploy to Org (VFS QA)
+        if: ${{ github.event.inputs.environment == 'VFS QA' }}
+        run: |
+          sfdx force:source:deploy --checkonly -w 500 -x manifest/${{ github.event.inputs.Feature_Branch }}_package.xml --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{ github.event.inputs.testlevel }}${{ github.event.inputs.testlevel == 'RunSpecifiedTests' ? ' --runtests ' + github.event.inputs.specifiedclass : '' }}
+            
