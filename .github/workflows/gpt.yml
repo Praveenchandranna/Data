@@ -1,4 +1,4 @@
-name: VFS Validation Pipeline 
+name: MYexplore
 on:
     workflow_dispatch:
       inputs:
