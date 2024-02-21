@@ -122,7 +122,7 @@ jobs:
           fetch-depth: 0
       - name: Install SFDX
         run: |
-          npm install --global sfdx-cli
+          npm install -g @salesforce/cli@latest
           sfdx --version
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
@@ -202,7 +202,7 @@ jobs:
           fetch-depth: 0
       - name: Install SFDX
         run: |
-          npm install --global sfdx-cli
+          npm install -g @salesforce/cli@latest
           sfdx --version
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
@@ -282,7 +282,7 @@ jobs:
           fetch-depth: 0
       - name: Install SFDX
         run: |
-          npm install --global sfdx-cli
+          npm install -g @salesforce/cli@latest
           sfdx --version
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
