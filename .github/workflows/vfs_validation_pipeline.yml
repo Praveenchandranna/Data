@@ -120,7 +120,10 @@ jobs:
           fetch-depth: 0
       - name: Install SFDX
         run: |
-          npm install --global sfdx-cli
+          wget https://developer.salesforce.com/media/salesforce-cli/sfdx-linux-amd64.tar.xz
+          mkdir sfdx-cli
+          tar xJf sfdx-linux-amd64.tar.xz -C sfdx-cli --strip-components 1
+          sudo ./sfdx-cli/install
           sfdx --version
       - name: Generate JWT Key for ${{ github.event.inputs.environment }}
         shell: bash
@@ -134,12 +137,11 @@ jobs:
       - name: Run Salesforce Code Analyzer
         run: |
           sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
-  
+
       - name: Convert JSON to YAML
         run: |
-          apt-get update && apt-get install -y jq python3-pip
-          pip3 install yq
-          jq . analysis_results.json | yq eval -P - > analysis_results.yaml
+          apt-get update && apt-get install -y python3
+          python3 -c 'import json, sys, yaml; yaml.safe_dump(json.load(sys.stdin), sys.stdout, default_flow_style=False)' < analysis_results.json > analysis_results.yaml
 
       - name: Store Analysis Results
         run: |
