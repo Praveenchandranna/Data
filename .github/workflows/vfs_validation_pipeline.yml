@@ -132,8 +132,8 @@ jobs:
           sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --set-default-dev-hub
 
       - name: Run Salesforce Code Analyzer
-      run: |
-        sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
+        run: |
+          sfdx force:source:lint --files force-app/main/default/* --format json > analysis_results.json
   
       - name: Convert JSON to YAML
         uses: json2yaml/json2yaml-action@v1
