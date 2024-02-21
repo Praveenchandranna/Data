@@ -74,7 +74,7 @@ jobs:
         run: |
           sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --set-default-dev-hub
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to RunLocalTests
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -82,7 +82,8 @@ jobs:
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to RunAllTestsInOrg
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -91,7 +92,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to NoTestRun
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -100,7 +101,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to RunSpecifiedTests
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -130,7 +131,7 @@ jobs:
         run: |
           sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_UAT }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --set-default-dev-hub
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to RunLocalTests
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -139,7 +140,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to RunAllTestsInOrg
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -149,7 +150,7 @@ jobs:
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
 
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to NoTestRun
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -158,7 +159,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} 
 
-      - name: validation to ${{ github.event.inputs.environment }} with Respect to ${{ github.event.inputs.testlevel}}
+      - name: validation to ${{ github.event.inputs.environment }} with Respect to RunSpecifiedTests
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
