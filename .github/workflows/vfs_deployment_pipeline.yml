@@ -3,6 +3,9 @@ on:
   workflow_dispatch:
     branches:
       - Dev
+      - qaglobal
+      - uat
+      - hotfix
     inputs:
       Feature_Branch:
         type: String
@@ -35,7 +38,7 @@ on:
 jobs:
   Deployment_To_VFS_QA:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS QA' && github.ref == 'refs/heads/Dev' }}
+    if: ${{ github.event.inputs.environment == 'VFS QA' && github.ref == 'refs/heads/dev' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -115,7 +118,7 @@ jobs:
 
   Deployment_To_VFS_QAGlobal:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS QAGlobal' }}
+    if: ${{ github.event.inputs.environment == 'VFS QAGlobal' && github.ref == 'refs/heads/qaglobal'}}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -195,7 +198,7 @@ jobs:
 
   Deployment_To_VFS_UAT:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS UAT' }}
+    if: ${{ github.event.inputs.environment == 'VFS UAT' && github.ref == 'refs/heads/uat'}}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
@@ -273,7 +276,7 @@ jobs:
           sfdx force:source:deploy  -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }}
   Deployment_To_VFS_HOTFIX:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS HOTFIX' }}
+    if: ${{ github.event.inputs.environment == 'VFS HOTFIX' && github.ref == 'refs/heads/hotfix' }}
     steps:
       - name: Check out files
         uses: actions/checkout@v4
