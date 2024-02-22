@@ -40,7 +40,7 @@ jobs:
         org:
           - name : VFS QA
             branch: QA
-    if: ${{ github.event.inputs.environment == 'VFS QA' && matrix.org.branch ='QA' }}
+    if: ${{ github.event.inputs.environment == 'VFS QA' && matrix.org.branch =='QA' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
