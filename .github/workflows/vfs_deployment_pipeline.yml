@@ -38,7 +38,7 @@ on:
 jobs:
   Deployment_To_VFS_QA:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS QA' && github.ref == 'refs/heads/dev' }}
+    if: ${{ github.event.inputs.environment == 'VFS QA' && github.ref == 'refs/heads/Dev' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
