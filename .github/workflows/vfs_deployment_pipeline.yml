@@ -1,6 +1,8 @@
 name: VFS Deployment Pipeline
 on:
   workflow_dispatch:
+    branches:
+      - Dev
     inputs:
       Feature_Branch:
         type: String
@@ -33,20 +35,7 @@ on:
 jobs:
   Deployment_To_VFS_QA:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        environment:
-          - 'VFS QA'
-          - 'VFS QAGlobal'
-          - 'VFS UAT'
-          - 'VFS HOTFIX'
-        branch: 
-          - 'QA'
-          - 'QAGlobal'
-          - 'UAT'
-          - 'HOTFIX'
-
-    if: ${{ matrix.environment ==github.event.inputs.environment && matrix.branch =='QA' }}
+    if: ${{ github.event.inputs.environment == 'VFS QA' && github.ref == 'refs/head/Dev' }}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
