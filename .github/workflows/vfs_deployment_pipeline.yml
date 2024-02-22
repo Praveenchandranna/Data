@@ -36,7 +36,7 @@ jobs:
   Deployment_To_VFS_QA:
     runs-on: ubuntu-latest
     strategy:
-      martix:
+      matrix:
         org:
           - name : VFS QA
             branch: QA
