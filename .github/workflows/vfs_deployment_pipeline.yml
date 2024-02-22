@@ -35,7 +35,7 @@ on:
 jobs:
   Deployment_To_VFS_QA:
     runs-on: ubuntu-latest
-    stratergy:
+    strategy:
       martix:
         org:
           - name : VFS QA
