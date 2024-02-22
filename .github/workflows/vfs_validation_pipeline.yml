@@ -10,11 +10,11 @@ on:
         type: choice
         description: Please Select The Validation Environment.
         options:
-          - VFS DEV
           - VFS QA
           - VFS QAGlobal
           - VFS UAT
-        default: "VFS DEV"
+          - VFS HOTFIX
+        default: "VFS QA"
         required: true
       testlevel:
         type: choice
@@ -31,79 +31,6 @@ on:
         description: Please Enter Test Class Names with Comma Seperated.
 
 jobs:
-  Validation_To_VFS_DEV:
-    runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS DEV' }}
-    steps:
-      - name: Check out files
-        uses: actions/checkout@v4
-
-      - name: Install Salesforce CLI
-        run: |
-          npm install -g @salesforce/cli@latest
-          sfdx --version
-      - name: Install Salesforce Code Analyzer Plugin
-        run: sf plugins install @salesforce/sfdx-scanner@latest
-        
-      - name: Generate JWT Key for ${{ github.event.inputs.environment }}
-        shell: bash
-        run: |
-          echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
-  
-      - name: Authorize To ${{ github.event.inputs.environment }}
-        run: |
-          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_DEV }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_DEV_USERNAME }} --set-default-dev-hub
-      - name: Run Salesforce Code Analyzer
-        id: run-code-analyzer
-        uses: forcedotcom/run-code-analyzer@v1
-        with:
-          run-command: run
-          run-arguments: --normalize-severity --target . --outfile results.html --verbose 
-          results-artifact-name: salesforce-code-analyzer-results
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.exit-code }}"
-      - name: Check the outputs to determine whether to fail
-        if: |
-          steps.run-code-analyzer.outputs.exit-code > 0 ||
-          steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
-          steps.run-code-analyzer.outputs.num-violations > 10
-        run: exit 1
-      - name: validation RunLocalTests for ${{ github.event.inputs.environment }}
-        shell: bash
-        env:
-          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
-          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
-        if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
-        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_DEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
-
-      - name: validation RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
-        shell: bash
-        env:
-          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
-          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
-        if: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
-        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_DEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
-
-      - name: validation NoTestRun for ${{ github.event.inputs.environment }} 
-        shell: bash
-        env:
-          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
-          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
-        if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
-        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_DEV_USERNAME }} 
-
-      - name: validation RunSpecifiedTests for ${{ github.event.inputs.environment }} 
-        shell: bash
-        env:
-          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
-          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
-          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
-        if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
-        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_DEV_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
   Validation_To_VFS_QA:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'VFS QA' }}
@@ -142,7 +69,7 @@ jobs:
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 1
-      - name: validation RunLocalTests for ${{ github.event.inputs.environment }}
+      - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -151,7 +78,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
 
-      - name: validation RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
+      - name: validation with RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -160,7 +87,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
 
-      - name: validation NoTestRun for ${{ github.event.inputs.environment }} 
+      - name: validation with NoTestRun for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -169,7 +96,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
 
-      - name: validation RunSpecifiedTests for ${{ github.event.inputs.environment }} 
+      - name: validation with RunSpecifiedTests for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -215,7 +142,7 @@ jobs:
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 1
-      - name: validation RunLocalTests for ${{ github.event.inputs.environment }}
+      - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -224,7 +151,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_QAGLOBAL_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
 
-      - name: validation RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
+      - name: validation with RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -233,7 +160,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QAGLOBAL_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
 
-      - name: validation NoTestRun for ${{ github.event.inputs.environment }} 
+      - name: validation with NoTestRun for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -242,7 +169,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QAGLOBAL_USERNAME }} 
 
-      - name: validation RunSpecifiedTests for ${{ github.event.inputs.environment }} 
+      - name: validation with RunSpecifiedTests for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -289,7 +216,7 @@ jobs:
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 1
       
-      - name: validation RunLocalTests for ${{ github.event.inputs.environment }}
+      - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -298,7 +225,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
 
-      - name: validation RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
+      - name: validation with RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -308,7 +235,7 @@ jobs:
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
 
 
-      - name: validation NoTestRun for ${{ github.event.inputs.environment }} 
+      - name: validation with NoTestRun for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -317,7 +244,7 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} 
 
-      - name: validation RunSpecifiedTests for ${{ github.event.inputs.environment }} 
+      - name: validation with RunSpecifiedTests for ${{ github.event.inputs.environment }} 
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
@@ -325,3 +252,76 @@ jobs:
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_UAT_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
+  Validation_To_VFS_Hotfix:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.environment == 'VFS HOTFIX' }}
+    steps:
+      - name: Check out files
+        uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install -g @salesforce/cli@latest
+          sfdx --version
+      - name: Install Salesforce Code Analyzer Plugin
+        run: sf plugins install @salesforce/sfdx-scanner@latest
+        
+      - name: Generate JWT Key for ${{ github.event.inputs.environment }}
+        shell: bash
+        run: |
+          echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
+  
+      - name: Authorize To ${{ github.event.inputs.environment }}
+        run: |
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_HOTFIX }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_HOTFIX_USERNAME }} --set-default-dev-hub
+      - name: Run Salesforce Code Analyzer
+        id: run-code-analyzer
+        uses: forcedotcom/run-code-analyzer@v1
+        with:
+          run-command: run
+          run-arguments: --normalize-severity --target . --outfile results.html --verbose 
+          results-artifact-name: salesforce-code-analyzer-results
+      - name: Print Output
+        id: output
+        run: echo "${{ steps.test-action.outputs.exit-code }}"
+      - name: Check the outputs to determine whether to fail
+        if: |
+          steps.run-code-analyzer.outputs.exit-code > 0 ||
+          steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
+          steps.run-code-analyzer.outputs.num-violations > 10
+        run: exit 1
+      - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
+        shell: bash
+        env:
+          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
+        if: ${{ github.event.inputs.testlevel == 'RunLocalTests'}}
+        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen}  --targetusername  ${{ secrets.SFDX_AUTH_VFS_HOTFIX_USERNAME }} --testlevel ${{github.event.inputs.testlevel}}
+
+      - name: validation with RunAllTestsInOrg for ${{ github.event.inputs.environment }} 
+        shell: bash
+        env:
+          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
+        if: ${{ github.event.inputs.testlevel == 'RunAllTestsInOrg'}}
+        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_HOTFIX_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} 
+
+      - name: validation with NoTestRun for ${{ github.event.inputs.environment }} 
+        shell: bash
+        env:
+          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
+        if: ${{ github.event.inputs.testlevel == 'NoTestRun'}}  
+        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_HOTFIX_USERNAME }} 
+
+      - name: validation with RunSpecifiedTests for ${{ github.event.inputs.environment }} 
+        shell: bash
+        env:
+          SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
+          SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
+          SFDX_testclass: ${{github.event.inputs.specifiedclass}}
+        if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
+        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_HOTFIX_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
