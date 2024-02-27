@@ -68,7 +68,7 @@ jobs:
           steps.run-code-analyzer.outputs.exit-code > 0 ||
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
-        run: exit 0
+        run: exit 1
       - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
