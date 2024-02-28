@@ -69,10 +69,11 @@ jobs:
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 0
-      - name: Run Apex tests and collect coverage
+      - name:  Install jq and Run Apex tests and collect coverage
         id: run-tests
         run: |
-          test_results=$(sfdx force:apex:test:run -c -r json -w 10 -l RunSpecifiedTests --runtests ${{github.event.inputs.specifiedclass}} --targetusername  ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }})
+          sudo apt-get install jq
+          test_results=$(sfdx force:apex:test:run -c -r json -w 10 -l RunLocalTests --targetusername  ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }})
           echo "::set-output name=test-results::$test_results"
       - name: Parse coverage results and calculate total coverage
         id: calculate-coverage
