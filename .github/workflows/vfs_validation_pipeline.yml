@@ -107,13 +107,24 @@ jobs:
         run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} 
 
       - name: validation with RunSpecifiedTests for ${{ github.event.inputs.environment }} 
+        id: check-coverage
         shell: bash
         env:
           SFDX_testclass_Gen: ${{github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_testclass.txt
           SFDX_Package_Gen: ${{ github.workspace }}/manifest/${{github.event.inputs.Feature_Branch}}_package.xml
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
-        run: sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
+        run: |
+          coverage_threshold=85
+          if (( $(echo "${{ steps.calculate-coverage.outputs.total-coverage }} > $coverage_threshold" | bc -l) )); then
+            echo "Code coverage is above 85%. Proceeding with deployment..."
+            # Deploy to Salesforce org
+            sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
+          else
+            echo "Code coverage is below 85%. Deployment aborted."
+            exit 1
+          fi
+         
   Validation_To_VFS_QAGlobal:
     runs-on: ubuntu-latest
     if: ${{ github.event.inputs.environment == 'VFS QAGlobal' }}
