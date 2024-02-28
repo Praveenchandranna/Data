@@ -69,6 +69,16 @@ jobs:
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 0
+      - name: Run Apex tests and collect coverage
+              id: run-tests
+              run: |
+                test_results=$(sfdx force:apex:test:run -c -r json -w 10 -l ${{github.event.inputs.specifiedclass}})
+                echo "::set-output name=test-results::$test_results"
+      - name: Parse coverage results and calculate total coverage
+              id: calculate-coverage
+              run: |
+                total_coverage=$(echo "${{ steps.run-tests.outputs.test-results }}" | jq '.result.coverage.coverage')
+                echo "::set-output name=total-coverage::$total_coverage"
       - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
