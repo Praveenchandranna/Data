@@ -45,3 +45,95 @@ jobs:
               echo "Code coverage is below 85%. Deployment aborted."
               exit 1
           fi
+________
+
+name: VFS Validation Pipeline
+
+on:
+  workflow_dispatch:
+    inputs:
+      Feature_Branch:
+        type: String
+        description: Please Enter Branch To validate in Environment.
+        required: true
+      environment:
+        type: choice
+        description: Please Select The Validation Environment.
+        options:
+          - VFS QA
+          - VFS QAGlobal
+          - VFS UAT
+          - VFS HOTFIX
+        default: "VFS QA"
+        required: true
+      testlevel:
+        type: choice
+        description: Select Test class Run Type.
+        options:
+          - NoTestRun
+          - RunLocalTests
+          - RunSpecifiedTests
+          - RunAllTestsInOrg
+        default: "RunSpecifiedTests"
+        required: true
+      specifiedclass:
+        type: String
+        description: Please Enter Test Class Names with Comma Separated.
+
+jobs:
+  Validation_To_VFS_QA:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.inputs.environment == 'VFS QA' }}
+    steps:
+      - name: Check out files
+        uses: actions/checkout@v4
+
+      - name: Install Salesforce CLI
+        run: |
+          npm install -g @salesforce/cli@latest
+          sfdx --version
+
+      - name: Install Salesforce Code Analyzer Plugin
+        run: sf plugins install @salesforce/sfdx-scanner@latest
+
+      - name: Generate JWT Key for ${{ github.event.inputs.environment }}
+        shell: bash
+        run: |
+          echo "${{ secrets.SALESFORCE_JWT_SECRET_KEY }}" > server.key
+
+      - name: Authorize To ${{ github.event.inputs.environment }}
+        run: |
+          sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA}} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --set-default-dev-hub
+
+      - name: Run Salesforce Code Analyzer
+        id: run-code-analyzer
+        uses: forcedotcom/run-code-analyzer@v1
+        with:
+          run-command: run
+          run-arguments: --normalize-severity --target . --outfile results.html --verbose --ruleset ./rulest.xml --ruleset ./rulest.xml
+          results-artifact-name: salesforce-code-analyzer-results
+
+      - name: Parse coverage results and calculate total coverage
+        id: calculate-coverage
+        run: |
+          total_coverage=$(echo "${{ steps.run-code-analyzer.outputs.coverage }}" | jq '.result.coverage.coverage')
+          echo "::set-output name=total-coverage::$total_coverage"
+
+      - name: Check code coverage
+        id: check-coverage
+        run: |
+          # Define the coverage threshold
+          coverage_threshold=85
+
+          # Extract the total code coverage from the test results
+          total_coverage=$(echo "${{ steps.calculate-coverage.outputs.total-coverage }}")
+
+          # Compare the coverage against the threshold
+          if (( $(echo "$total_coverage > $coverage_threshold" | bc -l) )); then
+            echo "Code coverage is above 85%. Proceeding with deployment..."
+            # Deploy to Salesforce org
+            # Modify this command to perform deployment actions
+          else
+            echo "Code coverage is below 85%. Deployment aborted."
+            exit 1
+          fi
