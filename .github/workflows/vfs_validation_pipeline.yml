@@ -70,7 +70,7 @@ jobs:
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 0
       
-        - name: Parse coverage results and calculate total coverage
+      - name: Parse coverage results and calculate total coverage
         id: calculate-coverage
         run: |
           total_coverage=$(echo "${{ steps.run-code-analyzer.outputs.coverage }}" | jq '.result.coverage.coverage')
