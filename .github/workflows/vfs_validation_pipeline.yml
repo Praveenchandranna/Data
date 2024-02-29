@@ -113,7 +113,7 @@ jobs:
         run: |
           coverage_threshold=85
           total_coverage=$(echo "${{ steps.calculate-coverage.outputs.total-coverage }}" | awk '{printf "%.2f", $1}')
-          if (( $(echo "$total_coverage < $coverage_threshold" | bc -l) )); then
+          if (( $(echo "$total_coverage > $coverage_threshold" | bc -l) )); then
             echo "Code coverage is above 85%. Proceeding with deployment..."
             # Deploy to Salesforce org
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
