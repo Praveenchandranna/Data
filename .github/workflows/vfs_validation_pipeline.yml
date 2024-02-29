@@ -69,15 +69,11 @@ jobs:
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 0
-      - name:  Run Apex tests and collect coverage
-        id: run-tests
-        run: |
-          test_results=$(sfdx force:apex:test:run -c -r json -w 10 -l RunLocalTests --target-org  ${{ secrets.SFDX_AUTH_TRAILHEAD_URL }})
-          echo "::set-output name=test-results::$test_results"
-      - name: Parse coverage results and calculate total coverage
+      
+        - name: Parse coverage results and calculate total coverage
         id: calculate-coverage
         run: |
-          total_coverage=$(echo "${{ steps.run-tests.outputs.test-results }}" | jq '.result.coverage.coverage')
+          total_coverage=$(echo "${{ steps.run-code-analyzer.outputs.coverage }}" | jq '.result.coverage.coverage')
           echo "::set-output name=total-coverage::$total_coverage"
       - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
@@ -116,7 +112,8 @@ jobs:
         if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
         run: |
           coverage_threshold=85
-          if (( $(echo "${{ steps.calculate-coverage.outputs.total-coverage }} > $coverage_threshold" | bc -l) )); then
+          total_coverage=$(echo "${{ steps.calculate-coverage.outputs.total-coverage }}")
+          if (( $(echo "$total_coverage > $coverage_threshold" | bc -l) )); then
             echo "Code coverage is above 85%. Proceeding with deployment..."
             # Deploy to Salesforce org
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
