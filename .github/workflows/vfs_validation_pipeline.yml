@@ -113,6 +113,7 @@ jobs:
         run: |
           coverage_threshold=75
           total_coverage=$(echo "${{ steps.calculate-coverage.outputs.total-coverage }}" | awk '{printf "%.2f", $1}')
+          echo "Total Code Coverage : $total_coverage"
           if (( $(echo "$total_coverage > $coverage_threshold" | bc -l) )); then
             echo "Code coverage is above 85%. Proceeding with deployment..."
             # Deploy to Salesforce org
