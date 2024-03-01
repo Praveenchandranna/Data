@@ -118,7 +118,7 @@ jobs:
 
   Deployment_To_VFS_QAGlobal:
     runs-on: ubuntu-latest
-    if: ${{ github.event.inputs.environment == 'VFS QAGlobal' && github.ref == 'refs/heads/qaglobal'}}
+    if: ${{ github.event.inputs.environment == 'VFS QAGlobal' && github.ref == 'refs/heads/Sprint/BAU-01'}}
     steps:
       - name: Checkout Source
         uses: actions/checkout@v3
