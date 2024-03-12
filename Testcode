@@ -92,3 +92,11 @@ jobs:
             echo "Code coverage is above 85%. Proceeding with deployment..."
             # Add deployment actions here
           fi
+
+
+----
+- name: Debug Output
+  run: |
+    echo "Code Analyzer Output: ${{ toJson(steps.run-code-analyzer.outputs) }}"
+    echo "Coverage Data: $(jq '.result.coverage.coverage' <<< '${{ steps.run-code-analyzer.outputs.coverage }}')"
+
