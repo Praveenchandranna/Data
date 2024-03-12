@@ -71,8 +71,8 @@ jobs:
         run: exit 0
       - name: Debug Output
         run: |
-          echo "Code Analyzer Output: ${{ steps.run-code-analyzer.outputs }}"
-          echo "Coverage Data: $(jq '.result.coverage.coverage' <<< ${{ steps.run-code-analyzer.outputs.coverage }})"
+          echo "Code Analyzer Output: ${{ toJson(steps.run-code-analyzer.outputs) }}"
+          echo "Coverage Data: $(jq '.result.coverage.coverage' <<< '${{ steps.run-code-analyzer.outputs.coverage }}')"
       - name: Parse coverage results and calculate total coverage
         id: calculate-coverage
         run: |
