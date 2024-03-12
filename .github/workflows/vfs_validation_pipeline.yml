@@ -69,12 +69,20 @@ jobs:
           steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
           steps.run-code-analyzer.outputs.num-violations > 10
         run: exit 0
-      
+      - name: Debug Output
+        run: |
+          echo "Code Analyzer Output: ${{ steps.run-code-analyzer.outputs }}"
+          echo "Coverage Data: $(jq '.result.coverage.coverage' <<< ${{ steps.run-code-analyzer.outputs.coverage }})"
       - name: Parse coverage results and calculate total coverage
         id: calculate-coverage
         run: |
-          total_coverage=$(echo "${{ steps.run-code-analyzer.outputs.coverage }}" | jq -r '.result.coverage.coverage')
-          echo "::set-output name=total-coverage::$total_coverage"
+          total_coverage=$(jq -r '.result.coverage.coverage' <<< "${{ steps.run-code-analyzer.outputs.coverage }}")
+          if [[ -z "$total_coverage" ]]; then
+            echo "Error: Total coverage is empty."
+            exit 1
+          fi
+          total_coverage_percentage=$(awk "BEGIN { print $total_coverage * 100 }")
+          echo "::set-output name=total-coverage::$total_coverage_percentage"
       - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
@@ -111,10 +119,9 @@ jobs:
           SFDX_testclass: ${{github.event.inputs.specifiedclass}}
         if: ${{ github.event.inputs.testlevel == 'RunSpecifiedTests'}}  
         run: |
-          coverage_threshold=75
-          total_coverage=$(echo "${{ steps.calculate-coverage.outputs.total-coverage }}" | awk '{printf "%.2f", $1}')
-          echo "Total Code Coverage : $total_coverage"
-          if (( $(echo "$total_coverage > $coverage_threshold" | bc -l) )); then
+          total_coverage_percentage=${{ steps.calculate-coverage.outputs.total-coverage }}
+          echo "Total Code Coverage Percentage: $total_coverage_percentage%"
+          if (( $total_coverage_percentage < 85 )); then
             echo "Code coverage is above 85%. Proceeding with deployment..."
             # Deploy to Salesforce org
             sfdx force:source:deploy --checkonly -w 500 -x ${SFDX_Package_Gen} --targetusername ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --testlevel ${{github.event.inputs.testlevel}} --runtests ${SFDX_testclass}
