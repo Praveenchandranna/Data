@@ -104,3 +104,6 @@ pipelines:
           image: salesforce/salesforcedx:latest
           script:
             - sfdx force:source:deploy -w 500 -x "./manifest/feature/QA_package.xml"  --targetusername $SFDC_USERNAME
+
+            key - 3MVG9n_HvETGhr3CdaGWW2LaO_fhGYGgT11gINmFg_9hD4hOVBHXzxdtey5GWaidoz6NtO9Xqe7lfWO1JxfSY
+            username - 	praveenkumar.ca@pwc.com.devorg
