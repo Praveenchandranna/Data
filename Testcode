@@ -98,3 +98,15 @@ pipelines:
             - sfdx force:source:deploy --sourcepath "force-app/main/default" --json
             # Run tests in the org
             - sfdx force:apex:test:run --resultformat human --codecoverage --json
+
+pipelines:
+  branches:
+    master:
+      - step:
+          name: Get Source Branch Name
+          image: atlassian/default-image:2
+          script:
+            - MERGE_COMMIT=$(git log --merges --pretty=format:%H -n 1 $BITBUCKET_COMMIT)
+            - SOURCE_BRANCH=$(git show --no-patch --format=%s $MERGE_COMMIT | grep -o "'.*'" | head -1 | sed "s/'//g")
+            - echo "Source branch name: $SOURCE_BRANCH"
+
