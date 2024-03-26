@@ -40,3 +40,61 @@ pipelines:
           script:
             # Deploy metadata to Salesforce org
             - sfdx force:source:deploy -p path/to/your/source --targetusername $SFDC_USERNAME
+
+# This is a Bitbucket Pipeline script to get the source branch name in the destination branch after a merge
+
+pipelines:
+  branches:
+    master: # Change 'master' to your destination branch name
+      - step:
+          name: Get Source Branch Name
+          image: atlassian/default-image:2
+          script:
+            - COMMIT_INFO=$(git show --format=%B -s $BITBUCKET_COMMIT)
+            - echo "$COMMIT_INFO"
+            - if [[ $COMMIT_INFO == *"pull request"* ]]; then
+            -   if [[ $COMMIT_INFO =~ Merged[[:space:]]in[[:space:]]\'(.+)\'[[:space:]]\(pull[[:space:]]request ]]; then
+            -     SOURCE_BRANCH="${BASH_REMATCH[1]}"
+            -     echo "My source branch is: $SOURCE_BRANCH"
+            -   fi
+            - fi
+
+# This is a Bitbucket Pipeline script for concatenating comma-separated package names into one package
+
+pipelines:
+  default:
+    - step:
+        name: Concatenate Packages
+        image: ubuntu
+        script:
+          - packages="package1,package2,package3"  # Example comma-separated package names
+          - IFS=, read -r -a package_array <<< "$packages"  # Split comma-separated string into an array
+          - concatenated_package=""
+          - for package in "${package_array[@]}"; do concatenated_package+="$package "; done  # Concatenate packages with space
+          - echo "Concatenated package: $concatenated_package"
+
+# This is a Bitbucket Pipeline script for deploying Salesforce metadata using Salesforce DX
+
+pipelines:
+  branches:
+    feature/*:
+      - step:
+          name: Install Dependencies
+          image: node:14
+          caches:
+            - node
+          script:
+            # Install Salesforce CLI
+            - npm install sfdx-cli --global
+            # Install any other dependencies needed for your project
+            - npm install
+      - step:
+          name: Deploy to Salesforce
+          image: salesforce/salesforcedx:latest
+          script:
+            # Authenticate with Salesforce using JWT
+            - sfdx force:auth:jwt:grant --clientid $CLIENT_ID --jwtkeyfile server.key --username $USERNAME --setdefaultdevhubusername --instanceurl $INSTANCE_URL
+            # Deploy metadata to Salesforce org
+            - sfdx force:source:deploy --sourcepath "force-app/main/default" --json
+            # Run tests in the org
+            - sfdx force:apex:test:run --resultformat human --codecoverage --json
