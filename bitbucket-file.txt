@@ -1,0 +1,106 @@
+pipelines:
+  custom: # Pipelines that can only be triggered manually
+    Manual:
+      - variables :
+          - name: Feature_Branch
+      - step:
+          script:
+            - echo "Manual triggers for Sonar are awesome!"
+            - echo "Branch name $Feature_Branch"
+      - step:
+          name: Install Dependencies
+          image: node:14
+          caches:
+            - node
+          script:
+            # Install Salesforce CLI
+            - npm install sfdx-cli --global
+            # Install any other dependencies needed for your project
+            - npm install
+      - step:
+          name: Get Source Branch Name
+          image: atlassian/default-image:2
+          script:
+            - COMMIT_INFO=$(git show --format=%B -s $BITBUCKET_COMMIT)
+            - echo "$COMMIT_INFO"
+            - if [[ $COMMIT_INFO == *"pull request"* ]]; then
+            -   if [[ $COMMIT_INFO =~ Merged[[:space:]]in[[:space:]]\'(.+)\'[[:space:]]\(pull[[:space:]]request ]]; then
+            -     SOURCE_BRANCH="$COMMIT_INFO"
+            -     echo "My source branch is $SOURCE_BRANCH"
+            -   fi
+            - fi
+      - step:
+          name: Concatenate Packages
+          image: ubuntu
+          script:
+            - packages="$Feature_Branch"  # Example comma-separated package names
+            - IFS=, read -r -a package_array <<< "$packages"  # Split comma-separated string into an array
+            - concatenated_package=""
+            - for package in "${package_array[@]}"; do concatenated_package+="$package "; done  # Concatenate packages with space
+            - echo "Concatenated package: $concatenated_package"
+      - step:
+          name: Authenticate with Salesforce Org
+          image: sfdxci/sfdx
+          caches:
+            - sfdx
+          script:
+            - sf org login jwt -i ${SFDC_CLIENT_ID} -o ${SFDC_USERNAME} -f ${SALESFORCE_JWT_SECRET_KEY} -d -r ${SF_INSTANCE_URL} -a ${SF_ALIAS}"
+      - step:
+            name: Validation to QA
+            image: sfdxci/sfdx
+            caches:
+              - sfdx
+            script:
+              - sf project deploy validate --manifest ./manifest/<US#>_package.xml -o ${SF_ALIAS}"
+      - step:
+            name: Deployment to QA
+            image: sfdxci/sfdx
+            caches:
+              - sfdx
+            script:
+              - sf project deploy validate --manifest ./manifest/<US#>_package.xml -o ${SF_ALIAS}"
+              
+             
+  branches:  # Pipelines that run automatically on a commit to a branch can also be triggered manually
+    '{rev,staging}':
+      - step:
+          script:
+            - echo "Automated pipelines are cool too."
+            - echo "Automated pipeline name = $BITBUCKET_BRANCH"
+      - step:
+          name: Install Salesforc CLI
+          image: node:14
+          caches:
+            - node
+          script:
+            # Install Salesforce CLI
+            - npm install sfdx-cli --global
+            # Install any other dependencies needed for your project
+            - npm install
+      - step:
+          name: Get Source Branch Name
+          image: atlassian/default-image:2
+          script:
+            - MERGE_COMMIT=$(git log --merges --pretty=format:%H -n 1 $BITBUCKET_COMMIT)
+            - SOURCE_BRANCH=$(git show --no-patch --format=%s $MERGE_COMMIT | grep -o "'.*'" | head -1 | sed "s/'//g")
+            - echo "Source branch name $SOURCE_BRANCH"
+      - step:
+          name: Generate JWT Key
+          script:
+            - echo "$SALESFORCE_JWT_SECRET_KEY" > server.key
+      - step:
+          name: Authenticate with Salesforce Org
+          image: salesforce/salesforcedx:latest
+          script:
+            - sfdx force:auth:jwt:grant --clientid $SFDC_CLIENT_ID --jwtkeyfile ./JWT/server.key --username=$SFDC_USERNAME --setdefaultdevhubusername --setalias QA
+
+      - step:
+          name: Validation to QA
+          image: salesforce/salesforcedx:latest
+          script:
+            - sfdx force:source:deploy --checkonly -w 500 -x "./manifest/feature/QA_package.xml"  --targetusername $SFDC_USERNAME --testlevel RunSpecifiedTests --runtests HelloWorldTestClass
+      - step:
+          name: Deployment to QA
+          image: salesforce/salesforcedx:latest
+          script:
+            - sfdx force:source:deploy -w 500 -x "./manifest/feature/QA_package.xml"  --targetusername $SFDC_USERNAME
