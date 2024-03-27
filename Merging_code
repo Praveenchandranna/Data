@@ -1,0 +1,337 @@
+stage("merge package xml") {
+
+String memstr = ""
+
+   def dt = new Date()
+
+   OUTPUT = "Release_"+dt.format("ddMMyyyy")
+
+   println OUTPUT
+
+    
+
+   stage('merge') {
+
+   Date date = new Date()
+
+  //def files = readFile("manifest/${a}/${INPUT_FILENAME}.txt").split(",");
+
+  def files = BRANCH_LIST.tokenize(',')
+
+ 
+
+    for (String fa: files){
+
+
+if(fa.trim().toLowerCase() == ("master"))
+
+      {
+
+        error "Source branch contains master, Please run deployment manually"
+
+      }
+
+      else
+
+      {
+
+        if(fa.trim().contains("CL"))
+
+        {
+
+          DIRECTORY_PATH = "CoreLib"
+
+        }
+
+        else if(fa.trim().contains("JLG"))
+
+        {
+
+          DIRECTORY_PATH = "JLG"
+
+        }
+
+        else if(fa.trim().contains("BC"))
+
+        {
+
+          DIRECTORY_PATH = "BC"
+
+        }
+
+         
+
+      }
+
+
+TESTCLASS_FILENAME = "${DIRECTORY_PATH}/manifest/${OUTPUT}_TestClass.txt"
+
+println TESTCLASS_FILENAME
+
+
+    String fileName = "${DIRECTORY_PATH}/manifest/"+fa.trim()+"_TestClass.txt"
+
+    println fileName
+
+    sh "cat $fileName >> release_v1.txt"
+
+    sh "echo >> release_v1.txt"
+
+    }
+
+     
+
+    // sh "cat -f manifest/feature/release_${dt1}_TestClass.txt >> release_v1.txt"
+
+    sh "tr , '\n' < release_v1.txt >> release_v2.txt"
+
+    sh "cat release_v2.txt"
+
+     
+
+    sh "sort release_v2.txt | uniq > release_v1.txt"
+
+    sh "cat release_v1.txt"
+
+    sh "tr '\n' , < release_v1.txt | grep -Po '.*(?=,)' > fileTestClass.txt"
+
+    sh "cat fileTestClass.txt | sed 's/^,//' > ${DIRECTORY_PATH}/manifest/${OUTPUT}_TestClass.txt"
+
+    sh "cat ${DIRECTORY_PATH}/manifest/${OUTPUT}_TestClass.txt"
+
+    sh "rm release_v1.txt release_v2.txt fileTestClass.txt"
+
+     
+
+     
+
+    def filesList = [] as ArrayList
+
+    for (String fa: files){
+
+
+if(fa.trim().toLowerCase() == ("master"))
+
+      {
+
+        error "Source branch contains master, Please run deployment manually"
+
+      }
+
+      else
+
+      {
+
+        if(fa.trim().contains("CL"))
+
+        {
+
+          DIRECTORY_PATH = "CoreLib"
+
+        }
+
+        else if(fa.trim().contains("JLG"))
+
+        {
+
+          DIRECTORY_PATH = "JLG"
+
+        }
+
+        else if(fa.trim().contains("BC"))
+
+        {
+
+          DIRECTORY_PATH = "BC"
+
+        }
+
+         
+
+      }
+
+
+PACKAGE_FILENAME = "${DIRECTORY_PATH}/manifest/${OUTPUT}_package.xml"
+
+println PACKAGE_FILENAME
+
+
+String filename = "${DIRECTORY_PATH}/manifest/"+fa.trim()+"_package.xml"
+
+    println filename
+
+     filesList.add(readFile("${filename}"))
+
+    }
+
+    def pXml1;
+
+    def arrList = [] as ArrayList
+
+ 
+
+    int ij = 0
+
+    for (String sf: filesList) {
+
+     def pXml2 = new XmlSlurper().parseText(sf)
+
+ 
+
+     if (ij == 0) pXml1 = pXml2
+
+     else pXml1[0].children() << pXml2.children()
+
+     ij++
+
+ 
+
+    }
+
+ 
+
+    String[] str = groovy.xml.XmlUtil.serialize(pXml1).toString().split('\n');
+
+    String mem = ""
+
+    String value = ""
+
+    int i = 0
+
+    for (int k = 0; k < str.length; k++) {
+
+     value = str[k]
+
+     value = (((value.trim()).replace("tag0:", "")).replace(":tag0", "")).replace("tag0", "")
+
+     if (value.contains("<members>")) {
+
+      memstr = memstr + value
+
+     }
+
+     else if (value.contains("<name>")) {
+
+      for (int j = 0; j < i; j++)
+
+ 
+
+      {
+
+       if (value.equals(arrList.get(j))) {
+
+        mem = arrList.get(j - 1)
+
+        mem = mem + memstr
+
+        arrList.set((j - 1), mem)
+
+        mem = ""
+
+        memstr = ""
+
+        arrList.set((i - 1), "")
+
+        str[k + 1] = ""
+
+       }
+
+      }
+
+      if (memstr != "") {
+
+       arrList.add(memstr)
+
+       arrList.add(value)
+
+       i = i + 2
+
+       memstr = ""
+
+      }
+
+     }
+
+     else {
+
+      arrList.add(value)
+
+      i++
+
+     }
+
+    }
+
+    mem = ""
+
+    memstr = ""
+
+    for (val in arrList) {
+
+     mem = mem + val
+
+    }
+
+    //remove duplicate members
+
+    mem = mem.replace("><", ">\n<")
+
+    String[] str1 = mem.split('\n');
+
+    mem = ""
+
+    int j = -1
+
+    for (int p = 0; p < str1.size(); p++) {
+
+     if (str1[p].contains("<version")) {
+
+      if (j != -1) str1[j] = ""
+
+      j = p
+
+     }
+
+    }
+
+ 
+
+    for (String s: str1) {
+
+     if (s.contains("<members>")) {
+
+      if (!mem.contains("*")) {
+
+       if (!mem.contains(s.trim())) mem = mem + s
+
+       if (s.contains("*")) {
+
+        mem = s
+
+       }
+
+      }
+
+     }
+
+     else if (s.contains("<name>")) {
+
+      memstr = memstr + mem + s
+
+      mem = ""
+
+     }
+
+     else memstr = memstr + s
+
+    }
+
+   }
+
+   String finalOutput = memstr.replace("><", ">\n<")
+
+   String relFl="${DIRECTORY_PATH}/manifest/${OUTPUT}_package.xml"
+
+   writeFile file: relFl,
+
+   text: finalOutput
