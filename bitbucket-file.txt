@@ -1,109 +1,248 @@
 pipelines:
   custom: # Pipelines that can only be triggered manually
-    Manual:
-      - variables :
+    Validation_QA:
+      - variables:
           - name: Feature_Branch
+          - name: Salesforce_Test_Run
+            default: RunSpecifiedTests  
+            allowed-values:         
+             - RunSpecifiedTests
+             - RunLocalTests
+             - RunAllTestsInOrg
+             - NoTestRun
       - step:
+          name: Checkout Branch
+          image: atlassian/default-image:2
           script:
-            - echo "Manual triggers for Sonar are awesome!"
-            - echo "Branch name $Feature_Branch"
+            - git checkout $Feature_Branch
       - step:
           name: Install Dependencies
           image: node:14
           caches:
             - node
           script:
-            # Install Salesforce CLI
             - npm install sfdx-cli --global
-            # Install any other dependencies needed for your project
             - npm install
+          
       - step:
-          name: Get Source Branch Name
-          image: atlassian/default-image:2
+          name: Display Branch Name and Test Class Content
           script:
-            - COMMIT_INFO=$(git show --format=%B -s $BITBUCKET_COMMIT)
-            - echo "$COMMIT_INFO"
-            - if [[ $COMMIT_INFO == *"pull request"* ]]; then
-            -   if [[ $COMMIT_INFO =~ Merged[[:space:]]in[[:space:]]\'(.+)\'[[:space:]]\(pull[[:space:]]request ]]; then
-            -     SOURCE_BRANCH="$COMMIT_INFO"
-            -     echo "My source branch is $SOURCE_BRANCH"
-            -   fi
-            - fi
-      - step:
-          name: Concatenate Packages
-          image: ubuntu
-          script:
-            - packages="$Feature_Branch"  # Example comma-separated package names
-            - IFS=, read -r -a package_array <<< "$packages"  # Split comma-separated string into an array
-            - concatenated_package=""
-            - for package in "${package_array[@]}"; do concatenated_package+="$package "; done  # Concatenate packages with space
-            - echo "Concatenated package: $concatenated_package"
-      - step:
-          name: Authenticate with Salesforce Org
-          image: sfdxci/sfdx
-          caches:
-            - sfdx
-          script:
-            - sf org login jwt -i ${SFDC_CLIENT_ID} -o ${SFDC_USERNAME} -f ${SALESFORCE_JWT_SECRET_KEY} -d -r ${SF_INSTANCE_URL} -a ${SF_ALIAS}"
-      - step:
-            name: Validation to QA
-            image: sfdxci/sfdx
-            caches:
-              - sfdx
-            script:
-              - sf project deploy validate --manifest ./manifest/<US#>_package.xml -o ${SF_ALIAS}"
-      - step:
-            name: Deployment to QA
-            image: sfdxci/sfdx
-            caches:
-              - sfdx
-            script:
-              - sf project deploy validate --manifest ./manifest/<US#>_package.xml -o ${SF_ALIAS}"
-              
-             
-  branches:  # Pipelines that run automatically on a commit to a branch can also be triggered manually
-    '{rev,staging}':
-      - step:
-          script:
-            - echo "Automated pipelines are cool too."
-            - echo "Automated pipeline name = $BITBUCKET_BRANCH"
-      - step:
-          name: Install Salesforc CLI
-          image: node:14
-          caches:
-            - node
-          script:
-            # Install Salesforce CLI
-            - npm install sfdx-cli --global
-            # Install any other dependencies needed for your project
-            - npm install
-      - step:
-          name: Get Source Branch Name
-          image: atlassian/default-image:2
-          script:
-            - MERGE_COMMIT=$(git log --merges --pretty=format:%H -n 1 $BITBUCKET_COMMIT)
-            - SOURCE_BRANCH=$(git show --no-patch --format=%s $MERGE_COMMIT | grep -o "'.*'" | head -1 | sed "s/'//g")
-            - echo "Source branch name $SOURCE_BRANCH"
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+
       - step:
           name: Generate JWT Key
           script:
             - echo "$SALESFORCE_JWT_SECRET_KEY" > server.key
-      - step:
-          name: Authenticate with Salesforce Org
-          image: salesforce/salesforcedx:latest
-          script:
-            - sfdx force:auth:jwt:grant --clientid $SFDC_CLIENT_ID --jwtkeyfile ./JWT/server.key --username=$SFDC_USERNAME --setdefaultdevhubusername --setalias QA
 
       - step:
-          name: Validation to QA
+          name: Authenticate with Salesforce Org and Validation
           image: salesforce/salesforcedx:latest
           script:
-            - sfdx force:source:deploy --checkonly -w 500 -x "./manifest/feature/QA_package.xml"  --targetusername $SFDC_USERNAME --testlevel RunSpecifiedTests --runtests HelloWorldTestClass
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+            - sfdx force:auth:jwt:grant --clientid $SFDC_CLIENT_ID_QA --jwtkeyfile ./JWT/server.key --username $SFDC_USERNAME_QA --setdefaultdevhubusername --setalias QA
+            - echo "Authentication completed successfully."
+            - |
+              if [[ "${Salesforce_Test_Run}" == "RunSpecifiedTests" ]]; then
+                test_run="RunSpecifiedTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_QA --testlevel "$Salesforce_Test_Run" --runtests "$file_content"
+                echo "Validation completed successfully with RunSpecifiedTests."
+              elif [[ "${Salesforce_Test_Run}" == "NoTestRun" ]]; then
+                test_run="NoTestRun"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_QA --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with NoTestRun."
+              elif [[ "${Salesforce_Test_Run}" == "RunLocalTests" ]]; then
+                test_run="RunLocalTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_QA --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunLocalTests."
+              elif [[ "${Salesforce_Test_Run}" == "RunAllTestsInOrg" ]]; then
+                test_run="RunAllTestsInOrg"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch_package".xml -u $SFDC_USERNAME_QA --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunAllTestsInOrg."
+              fi
+    Validation_SIT:
+      - variables:
+          - name: Feature_Branch
+          - name: Salesforce_Test_Run
+            default: RunSpecifiedTests  
+            allowed-values:         
+             - RunSpecifiedTests
+             - RunLocalTests
+             - RunAllTestsInOrg
+             - NoTestRun
       - step:
-          name: Deployment to QA
+          name: Checkout Branch
+          image: atlassian/default-image:2
+          script:
+            - git checkout $Feature_Branch
+      - step:
+          name: Install Dependencies
+          image: node:14
+          caches:
+            - node
+          script:
+            - npm install sfdx-cli --global
+            - npm install
+          
+      - step:
+          name: Display Branch Name and Test Class Content
+          script:
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+
+      - step:
+          name: Authenticate with Salesforce Org and Validation
           image: salesforce/salesforcedx:latest
           script:
-            - sfdx force:source:deploy -w 500 -x "./manifest/feature/QA_package.xml"  --targetusername $SFDC_USERNAME
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+            - sfdx force:auth:jwt:grant --clientid $SFDC_CLIENT_ID_SIT --jwtkeyfile ./JWT/server.key --username $SFDC_USERNAME_SIT --setdefaultdevhubusername --setalias SIT
+            - echo "Authentication completed successfully."
+            - |
+              if [[ "${Salesforce_Test_Run}" == "RunSpecifiedTests" ]]; then
+                test_run="RunSpecifiedTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_SIT --testlevel "$Salesforce_Test_Run" --runtests "$file_content"
+                echo "Validation completed successfully with RunSpecifiedTests."
+              elif [[ "${Salesforce_Test_Run}" == "NoTestRun" ]]; then
+                test_run="NoTestRun"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_SIT --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with NoTestRun."
+              elif [[ "${Salesforce_Test_Run}" == "RunLocalTests" ]]; then
+                test_run="RunLocalTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_SIT --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunLocalTests."
+              elif [[ "${Salesforce_Test_Run}" == "RunAllTestsInOrg" ]]; then
+                test_run="RunAllTestsInOrg"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch_package".xml -u $SFDC_USERNAME_SIT --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunAllTestsInOrg."
+              fi
+    Validation_UAT:
+      - variables:
+          - name: Feature_Branch
+          - name: Salesforce_Test_Run
+            default: RunSpecifiedTests  
+            allowed-values:         
+             - RunSpecifiedTests
+             - RunLocalTests
+             - RunAllTestsInOrg
+             - NoTestRun
+      - step:
+          name: Checkout Branch
+          image: atlassian/default-image:2
+          script:
+            - git checkout $Feature_Branch
+      - step:
+          name: Install Dependencies
+          image: node:14
+          caches:
+            - node
+          script:
+            - npm install sfdx-cli --global
+            - npm install
+          
+      - step:
+          name: Display Branch Name and Test Class Content
+          script:
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+      - step:
+          name: Authenticate with Salesforce Org and Validation
+          image: salesforce/salesforcedx:latest
+          script:
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+            - sfdx force:auth:jwt:grant --clientid $SFDC_CLIENT_ID_UAT --jwtkeyfile ./JWT/server.key --username $SFDC_USERNAME_UAT --setdefaultdevhubusername --setalias UAT
+            - echo "Authentication completed successfully."
+            - |
+              if [[ "${Salesforce_Test_Run}" == "RunSpecifiedTests" ]]; then
+                test_run="RunSpecifiedTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_UAT --testlevel "$Salesforce_Test_Run" --runtests "$file_content"
+                echo "Validation completed successfully with RunSpecifiedTests."
+              elif [[ "${Salesforce_Test_Run}" == "NoTestRun" ]]; then
+                test_run="NoTestRun"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_UAT --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with NoTestRun."
+              elif [[ "${Salesforce_Test_Run}" == "RunLocalTests" ]]; then
+                test_run="RunLocalTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_UAT --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunLocalTests."
+              elif [[ "${Salesforce_Test_Run}" == "RunAllTestsInOrg" ]]; then
+                test_run="RunAllTestsInOrg"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch_package".xml -u $SFDC_USERNAME_UAT --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunAllTestsInOrg."
+              fi
+    Validation_Peprod:
+      - variables:
+          - name: Feature_Branch
+          - name: Salesforce_Test_Run
+            default: RunSpecifiedTests  
+            allowed-values:         
+             - RunSpecifiedTests
+             - RunLocalTests
+             - RunAllTestsInOrg
+             - NoTestRun
+      - step:
+          name: Checkout Source Branch
+          image: atlassian/default-image:2
+          script:
+            - git checkout $Feature_Branch
+      - step:
+          name: Install Dependencies
+          image: node:14
+          caches:
+            - node
+          script:
+            - npm install sfdx-cli --global
+            - npm install
+          
+      - step:
+          name: Display Branch Name and Test Class Content
+          script:
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+      - step:
+          name: Authenticate with Salesforce Org and Validation
+          image: salesforce/salesforcedx:latest
+          script:
+            - echo "Branch name $Feature_Branch"
+            - file_content=$(cat ./manifest/"$Feature_Branch"_TestClass.txt)
+            - echo "File content:"
+            - echo "$file_content"
+            - echo "$SFDC_SERVER_KEY" >server.key
+            - sfdx force:auth:jwt:grant --clientid $SFDC_CLIENT_ID_PREPROD --jwtkeyfile server.key --username $SFDC_USERNAME_PREPROD --setdefaultdevhubusername --setalias Preprod
+            - echo "Authentication completed successfully."
+            - |
+              if [[ "${Salesforce_Test_Run}" == "RunSpecifiedTests" ]]; then
+                test_run="RunSpecifiedTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_PREPROD --testlevel "$Salesforce_Test_Run" --runtests "$file_content"
+                echo "Validation completed successfully with RunSpecifiedTests."
+              elif [[ "${Salesforce_Test_Run}" == "NoTestRun" ]]; then
+                test_run="NoTestRun"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_PREPROD --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with NoTestRun."
+              elif [[ "${Salesforce_Test_Run}" == "RunLocalTests" ]]; then
+                test_run="RunLocalTests"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch"_package.xml -u $SFDC_USERNAME_PREPROD --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunLocalTests."
+              elif [[ "${Salesforce_Test_Run}" == "RunAllTestsInOrg" ]]; then
+                test_run="RunAllTestsInOrg"
+                sfdx force:source:deploy --checkonly -w 500 -x ./manifest/"$Feature_Branch_package".xml -u $SFDC_USERNAME_PREPROD --testlevel "$Salesforce_Test_Run"
+                echo "Validation completed successfully with RunAllTestsInOrg."
+              fi
 
-            key - 3MVG9n_HvETGhr3CdaGWW2LaO_fhGYGgT11gINmFg_9hD4hOVBHXzxdtey5GWaidoz6NtO9Xqe7lfWO1JxfSY
-            username - 	praveenkumar.ca@pwc.com.devorg
+    
