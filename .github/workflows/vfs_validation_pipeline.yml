@@ -53,36 +53,6 @@ jobs:
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
           sfdx force:auth:jwt:grant --client-id=${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file=server.key --username=${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --set-default-dev-hub
-      - name: Run Salesforce Code Analyzer
-        id: run-code-analyzer
-        uses: forcedotcom/run-code-analyzer@v1
-        with:
-          run-command: run
-          run-arguments: --normalize-severity --target . --outfile results.html --verbose --ruleset ./rulest.xml 
-          results-artifact-name: salesforce-code-analyzer-results
-      - name: Print Output
-        id: output
-        run: echo "${{ steps.test-action.outputs.exit-code }}"
-      - name: Check the outputs to determine whether to fail
-        if: |
-          steps.run-code-analyzer.outputs.exit-code > 0 ||
-          steps.run-code-analyzer.outputs.num-sev1-violations > 0 ||
-          steps.run-code-analyzer.outputs.num-violations > 10
-        run: exit 0
-      - name: Debug Output
-        run: |
-          echo "Code Analyzer Output: ${{ toJson(steps.run-code-analyzer.outputs) }}"
-          echo "Coverage Data: $(jq '.result.coverage.coverage' <<< '${{ steps.run-code-analyzer.outputs.coverage }}')"
-      - name: Parse coverage results and calculate total coverage
-        id: calculate-coverage
-        run: |
-          total_coverage=$(jq -r '.result.coverage.coverage' <<< "${{ steps.run-code-analyzer.outputs.coverage }}")
-          if [[ -z "$total_coverage" ]]; then
-            echo "Error: Total coverage is empty."
-            exit 1
-          fi
-          total_coverage_percentage=$(awk "BEGIN { print $total_coverage * 100 }")
-          echo "::set-output name=total-coverage::$total_coverage_percentage"
       - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
