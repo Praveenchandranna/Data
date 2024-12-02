@@ -52,7 +52,7 @@ jobs:
   
       - name: Authorize To ${{ github.event.inputs.environment }}
         run: |
-          sf org login jwt --client-id ${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file server.key --username ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --alias $(QA_Alias) --instance-url $(QA_Instance)
+          sf org login jwt --client-id ${{secrets.SALESFORCE_CONSUMER_KEY_VFS_QA }} --jwt-key-file server.key --username ${{ secrets.SFDX_AUTH_VFS_QA_USERNAME }} --alias ${{ secrets.QA_Alias }} --instance-url ${{ secrets.QA_Instance }}
       - name: validation with RunLocalTests for ${{ github.event.inputs.environment }}
         shell: bash
         env:
